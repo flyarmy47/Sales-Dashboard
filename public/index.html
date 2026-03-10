@@ -251,6 +251,7 @@ button{font-family:inherit;cursor:pointer;}
     </button>
     <a class="icon-btn" href="https://app.hubspot.com/tasks/43556656/view/all" target="_blank">HubSpot ↗</a>
     <a class="icon-btn" href="https://calendar.google.com" target="_blank">Calendar ↗</a>
+    <button class="icon-btn" id="logout-btn" onclick="logOut()" style="color:var(--red);">Sign Out</button>
   </div>
 </header>
 
@@ -442,7 +443,34 @@ button{font-family:inherit;cursor:pointer;}
   <span id="toast-msg"></span>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script type="module">
+// ════════════════════════════════════════════════════
+// AUTH GUARD
+// ════════════════════════════════════════════════════
+const SUPABASE_URL  = 'https://bruqilvhrqctgcjpmfft.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJydXFpbHZocnFjdGdjanBtZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTQxNTUsImV4cCI6MjA4ODY3MDE1NX0.qLtqt3WrBhe6RMFvDR_0wugLkF7LoSPXQ0Z2yoC02Rs';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+{
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = '/login.html';
+    throw new Error('Not authenticated');
+  }
+  const email = session.user.email || '';
+  if (!email.endsWith('@launchhouse.golf')) {
+    await sb.auth.signOut();
+    window.location.href = '/login.html';
+    throw new Error('Unauthorized domain');
+  }
+}
+
+window.logOut = async function() {
+  await sb.auth.signOut();
+  window.location.href = '/login.html';
+};
+
 // ════════════════════════════════════════════════════
 // CONFIG
 // ════════════════════════════════════════════════════

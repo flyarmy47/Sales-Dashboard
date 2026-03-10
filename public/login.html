@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch House — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"] {
+  --bg:#0b0f0d;--surface:#161f19;--border:#243029;--border2:#2e3d33;
+  --text:#e4ede7;--text2:#8fa898;--text3:#4a5e52;
+  --accent:#34d468;--accent-bg:rgba(52,212,104,.10);--accent-bd:rgba(52,212,104,.22);
+  --red:#f05252;--red-bg:rgba(240,82,82,.12);--red-bd:rgba(240,82,82,.28);
+  --shadow:0 2px 12px rgba(0,0,0,.45);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;align-items:center;justify-content:center;}
+
+.login-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  padding:48px 40px;max-width:400px;width:100%;text-align:center;
+  box-shadow:var(--shadow);
+}
+.login-logo{
+  font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;
+  color:var(--accent);margin-bottom:6px;letter-spacing:-.5px;
+}
+.login-logo span{color:var(--text3);font-weight:400;}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:32px;}
+
+.google-btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:#fff;color:#1a1a1a;border:none;border-radius:8px;
+  padding:12px 28px;font-size:14px;font-weight:500;font-family:inherit;
+  cursor:pointer;transition:box-shadow .15s,transform .1s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,.3);transform:translateY(-1px);}
+.google-btn:active{transform:translateY(0);}
+.google-btn svg{width:20px;height:20px;}
+.google-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+
+.login-error{
+  margin-top:20px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:500;
+  background:var(--red-bg);border:1px solid var(--red-bd);color:var(--red);
+  display:none;
+}
+.login-error.show{display:block;}
+
+.login-footer{margin-top:28px;font-size:11px;color:var(--text3);}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="login-logo">LAUNCH<span>HOUSE</span></div>
+  <div class="login-sub">Sales Hub — sign in to continue</div>
+
+  <button class="google-btn" id="google-btn" onclick="signIn()">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+    Sign in with Google
+  </button>
+
+  <div class="login-error" id="login-error"></div>
+  <div class="login-footer">Restricted to @launchhouse.golf accounts</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL  = 'https://bruqilvhrqctgcjpmfft.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJydXFpbHZocnFjdGdjanBtZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTQxNTUsImV4cCI6MjA4ODY3MDE1NX0.qLtqt3WrBhe6RMFvDR_0wugLkF7LoSPXQ0Z2yoC02Rs';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+function showError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+// Check if already logged in
+(async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    const email = session.user.email || '';
+    if (email.endsWith('@launchhouse.golf')) {
+      window.location.href = '/';
+    } else {
+      await supabase.auth.signOut();
+      showError('Access restricted to @launchhouse.golf email addresses.');
+    }
+  }
+
+  // Handle OAuth callback (hash contains access_token after redirect)
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+      const email = session.user.email || '';
+      if (email.endsWith('@launchhouse.golf')) {
+        window.location.href = '/';
+      } else {
+        await supabase.auth.signOut();
+        showError('Access restricted to @launchhouse.golf email addresses.');
+      }
+    }
+  });
+})();
+
+async function signIn() {
+  const btn = document.getElementById('google-btn');
+  btn.disabled = true;
+  btn.textContent = 'Redirecting…';
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: 'https://sales.launchhouse.golf/login.html',
+    },
+  });
+
+  if (error) {
+    showError(error.message);
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 48 48" width="20" height="20"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Sign in with Google';
+  }
+}
+</script>
+</body>
+</html>
