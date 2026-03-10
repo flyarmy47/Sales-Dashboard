@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch House — Sales Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── THEME TOKENS ── */
+[data-theme="dark"] {
+  --bg:#0b0f0d;--bg2:#111812;--surface:#161f19;--surface2:#1c2820;
+  --border:#243029;--border2:#2e3d33;
+  --text:#e4ede7;--text2:#8fa898;--text3:#4a5e52;
+  --accent:#34d468;--accent-bg:rgba(52,212,104,.10);--accent-bd:rgba(52,212,104,.22);
+  --red:#f05252;--red-bg:rgba(240,82,82,.12);--red-bd:rgba(240,82,82,.28);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.11);--amber-bd:rgba(245,158,11,.26);
+  --blue:#60a5fa;--blue-bg:rgba(96,165,250,.11);--gold:#d4a843;
+  --shadow:0 2px 12px rgba(0,0,0,.45);--shadow-lg:0 8px 32px rgba(0,0,0,.55);
+}
+[data-theme="light"] {
+  --bg:#f4f6f5;--bg2:#edf0ee;--surface:#fff;--surface2:#f8faf9;
+  --border:#dde4df;--border2:#c8d4cc;
+  --text:#1a2e22;--text2:#4e6b58;--text3:#96b09d;
+  --accent:#1a9e48;--accent-bg:rgba(26,158,72,.08);--accent-bd:rgba(26,158,72,.20);
+  --red:#dc2626;--red-bg:rgba(220,38,38,.08);--red-bd:rgba(220,38,38,.22);
+  --amber:#d97706;--amber-bg:rgba(217,119,6,.08);--amber-bd:rgba(217,119,6,.22);
+  --blue:#2563eb;--blue-bg:rgba(37,99,235,.08);--gold:#b8860b;
+  --shadow:0 2px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',system-ui,sans-serif;font-size:13px;background:var(--bg);color:var(--text);line-height:1.5;transition:background .25s,color .25s;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.app{display:flex;flex-direction:column;height:100vh;}
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow);z-index:100;position:relative;}
+.hdr-brand{display:flex;align-items:center;gap:10px;}
+.hdr-logo{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500;color:var(--accent);letter-spacing:-.3px;}
+.hdr-logo span{color:var(--text3);font-weight:400;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);animation:pulse 2.2s ease infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.owner-pill{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 11px 3px 3px;font-size:12px;color:var(--text2);font-weight:500;}
+.avatar{width:24px;height:24px;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-bd);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--accent);}
+.icon-btn{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 10px;transition:all .15s;white-space:nowrap;}
+.icon-btn:hover{color:var(--text);border-color:var(--border2);}
+.icon-btn.accent:hover{color:var(--accent);border-color:var(--accent-bd);}
+.spin{animation:spin .7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.theme-toggle{width:34px;height:20px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.theme-toggle .knob{width:14px;height:14px;border-radius:50%;background:var(--text3);position:absolute;top:2px;left:2px;transition:transform .2s,background .2s;}
+[data-theme="light"] .theme-toggle .knob{transform:translateX(14px);background:var(--accent);}
+.theme-label{font-size:11px;color:var(--text3);font-weight:500;}
+/* FOCUS BAR */
+.focus-bar{display:flex;align-items:center;gap:12px;padding:0 20px;height:38px;flex-shrink:0;background:var(--bg2);border-bottom:1px solid var(--border);}
+.focus-label{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--accent);white-space:nowrap;}
+.focus-sep{width:1px;height:16px;background:var(--border2);}
+.focus-stats{display:flex;align-items:center;gap:16px;flex:1;}
+.fstat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);}
+.fstat b{font-weight:700;font-size:13px;}
+.fstat b.red{color:var(--red);}
+.fstat b.green{color:var(--accent);}
+.fstat b.amber{color:var(--amber);}
+.focus-right{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);white-space:nowrap;font-weight:500;}
+/* GRID */
+.grid{flex:1;overflow:hidden;display:grid;grid-template-columns:272px 1fr 290px;}
+.col{display:flex;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);}
+.col:last-child{border-right:none;}
+/* PANEL HEAD */
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 9px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.panel-title{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.7px;}
+.panel-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.panel-action{font-size:11px;font-weight:500;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 9px;transition:all .14s;display:inline-block;}
+.panel-action:hover{color:var(--accent);border-color:var(--accent-bd);background:var(--accent-bg);}
+/* STATS ROW */
+.stats-row{display:grid;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface2);}
+.stats-row.cols-2{grid-template-columns:1fr 1fr;}
+.stats-row.cols-4{grid-template-columns:repeat(4,1fr);}
+.stat-cell{padding:9px 8px;text-align:center;border-right:1px solid var(--border);}
+.stat-cell:last-child{border-right:none;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;line-height:1;color:var(--accent);}
+.stat-val.amber{color:var(--amber);}
+.stat-val.red{color:var(--red);}
+.stat-lbl{font-size:10px;color:var(--text3);font-weight:500;margin-top:3px;text-transform:uppercase;letter-spacing:.5px;}
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:6px;padding:7px 16px 6px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;flex-wrap:wrap;}
+.filter-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);cursor:pointer;transition:all .14s;user-select:none;white-space:nowrap;}
+.filter-chip:hover{border-color:var(--border2);color:var(--text2);}
+.filter-chip.active{background:var(--accent-bg);border-color:var(--accent-bd);color:var(--accent);font-weight:600;}
+.filter-chip.red-chip.active{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
+.filter-chip.amber-chip.active{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+.filter-chip.blue-chip.active{background:var(--blue-bg);border-color:rgba(96,165,250,.3);color:var(--blue);}
+.filter-sep{width:1px;height:16px;background:var(--border);flex-shrink:0;}
+.filter-search{flex:1;min-width:80px;font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:3px 8px;color:var(--text);outline:none;transition:border-color .14s;font-family:inherit;}
+.filter-search:focus{border-color:var(--accent-bd);}
+.filter-search::placeholder{color:var(--text3);}
+/* SCROLL */
+.scroll{overflow-y:auto;flex:1;}
+/* CALENDAR */
+.ev-item{display:flex;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);transition:background .12s;}
+.ev-item:hover{background:var(--surface2);}
+.ev-time-col{min-width:52px;padding-top:1px;}
+.ev-time{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--text2);}
+.ev-dur{font-size:10px;color:var(--text3);margin-top:1px;}
+.ev-content{flex:1;min-width:0;}
+.ev-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.35;}
+.ev-tags{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;font-family:'JetBrains Mono',monospace;letter-spacing:.3px;}
+.tag-meet{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-bd);}
+.tag-focus{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
+.tag-admin{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.ev-actions{display:flex;gap:5px;margin-top:5px;}
+.tiny-btn{font-size:10px;font-weight:500;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text3);transition:all .12s;cursor:pointer;display:inline-block;}
+.tiny-btn:hover{color:var(--accent);border-color:var(--accent-bd);background:var(--accent-bg);}
+/* TASKS */
+.tasks-wrap{flex:0 0 47%;display:flex;flex-direction:column;border-bottom:1px solid var(--border);overflow:hidden;}
+.pipe-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.task-item{display:flex;gap:9px;padding:9px 16px;border-bottom:1px solid var(--border);transition:background .12s;}
+.task-item:hover{background:var(--surface2);}
+.task-item.done{opacity:.38;}
+.task-item.done .task-name{text-decoration:line-through;}
+.task-cb{width:16px;height:16px;border:2px solid var(--border2);border-radius:4px;flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.task-cb:hover{border-color:var(--accent);background:var(--accent-bg);}
+.task-cb.checked{background:var(--accent);border-color:var(--accent);}
+.task-cb.checked::after{content:'✓';font-size:10px;color:#fff;font-weight:700;line-height:1;}
+.task-body{flex:1;min-width:0;}
+.task-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:3px;}
+.task-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.pri-high{border-left:3px solid var(--red);padding-left:9px!important;}
+.pri-med{border-left:3px solid var(--amber);padding-left:9px!important;}
+.pri-low{border-left:3px solid var(--border2);padding-left:9px!important;}
+.badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
+.badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
+.badge-grey{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.badge-green{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-bd);}
+.badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(96,165,250,.3);}
+.owner-tag{font-size:10px;color:var(--text3);font-weight:500;}
+.hs-link-btn{font-size:10px;font-weight:500;padding:1px 6px;border-radius:4px;border:1px solid var(--border);background:none;color:var(--text3);transition:all .12s;display:inline-block;}
+.hs-link-btn:hover{color:var(--accent);border-color:var(--accent-bd);background:var(--accent-bg);}
+/* PIPELINE */
+.pipe-scroll{overflow-x:auto;flex:1;padding:10px 14px;}
+.pipe-board{display:flex;gap:10px;min-width:max-content;height:100%;}
+.stage-col{width:150px;flex-shrink:0;display:flex;flex-direction:column;}
+.stage-head{display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:7px;}
+.stage-count{font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);padding:1px 5px;border-radius:4px;}
+.deal-card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:8px 9px;margin-bottom:6px;cursor:pointer;transition:all .14s;}
+.deal-card:hover{border-color:var(--accent-bd);transform:translateY(-1px);box-shadow:var(--shadow);}
+.deal-card.past-close{border-color:var(--red-bd);background:var(--red-bg);}
+.deal-card.gbtm-card{border-color:var(--amber-bd);opacity:.85;}
+.deal-owner{display:flex;align-items:center;gap:4px;margin-bottom:4px;}
+.owner-dot{width:6px;height:6px;border-radius:50%;}
+.dot-tb{background:var(--accent);}
+.dot-cam{background:var(--gold);}
+.dot-todd{background:var(--blue);}
+.dot-xx{background:var(--text3);}
+.owner-name{font-size:10px;color:var(--text3);font-weight:500;}
+.deal-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:4px;}
+.deal-amt{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:var(--accent);margin-bottom:2px;}
+.deal-close{font-size:10px;color:var(--text3);}
+/* INSIGHTS */
+.insight-item{padding:12px 16px;border-bottom:1px solid var(--border);}
+.insight-head{display:flex;align-items:flex-start;gap:6px;margin-bottom:2px;}
+.insight-name{font-size:12px;font-weight:700;color:var(--text);flex:1;line-height:1.3;}
+.insight-amt{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:500;white-space:nowrap;}
+.insight-stage{font-size:10px;color:var(--text3);font-weight:500;margin-bottom:5px;}
+.insight-body{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:6px;}
+.insight-cta{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-bg);border:1px solid var(--accent-bd);border-radius:5px;padding:3px 9px;transition:opacity .14s;}
+.insight-cta:hover{opacity:.75;}
+.insight-cta::before{content:'→';}
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:22px;width:380px;max-width:92vw;box-shadow:var(--shadow-lg);animation:fadeUp .2s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.5;}
+.form-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-top:12px;margin-bottom:4px;}
+.form-input,.form-select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color .14s;}
+.form-input:focus,.form-select:focus{border-color:var(--accent-bd);}
+.form-note{font-size:11px;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-top:12px;line-height:1.55;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.btn-primary{background:var(--accent);color:#0b1a11;font-weight:700;border:none;border-radius:6px;padding:7px 16px;font-size:12px;transition:opacity .14s;}
+.btn-primary:hover{opacity:.85;}
+.btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:7px 12px;font-size:12px;transition:all .14s;}
+.btn-secondary:hover{color:var(--text);border-color:var(--border2);}
+.btn-link{display:inline-block;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-bd);border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;transition:opacity .14s;text-align:center;}
+.btn-link:hover{opacity:.8;}
+/* TASK CHOICE CARDS */
+.task-choice-btn{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1.5px solid var(--border);border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .16s;text-align:left;text-decoration:none;color:inherit;font-family:inherit;width:100%;}
+.task-choice-btn:hover{border-color:var(--accent-bd);background:var(--accent-bg);transform:translateY(-1px);box-shadow:var(--shadow);}
+.task-choice-btn:hover .choice-title{color:var(--accent);}
+.task-choice-btn:disabled{opacity:.5;pointer-events:none;}
+.choice-icon{font-size:18px;width:36px;height:36px;border-radius:8px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.choice-body{flex:1;min-width:0;}
+.choice-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.choice-desc{font-size:11px;color:var(--text3);line-height:1.4;}
+.choice-arrow{font-size:16px;color:var(--text3);flex-shrink:0;}
+.task-choice-btn:hover .choice-arrow{color:var(--accent);}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:300;background:var(--surface);border:1px solid var(--border2);border-radius:9px;padding:11px 16px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-lg);max-width:320px;transform:translateY(60px);opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.5,.64,1);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-icon{font-size:14px;flex-shrink:0;}
+.toast.success .toast-icon{color:var(--accent);}
+.toast.error   .toast-icon{color:var(--red);}
+.toast.loading .toast-icon{color:var(--amber);display:inline-block;animation:spin .8s linear infinite;}
+/* LOADING SKELETON */
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px;display:block;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.empty-state{padding:16px;text-align:center;color:var(--text3);font-size:12px;line-height:1.6;}
+.empty-icon{font-size:22px;margin-bottom:5px;}
+/* LOADING OVERLAY */
+#loading-overlay{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:opacity .4s;}
+#loading-overlay.hidden{opacity:0;pointer-events:none;}
+.loading-logo{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--accent);}
+.loading-sub{font-size:12px;color:var(--text3);}
+.loading-bar{width:200px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
+.loading-fill{height:100%;background:var(--accent);border-radius:2px;animation:load-progress 2s ease forwards;}
+@keyframes load-progress{0%{width:0}60%{width:70%}100%{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loading-logo">Launch House / Sales</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-sub" id="loading-msg">Connecting to HubSpot…</div>
+</div>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">Launch House <span>/ Sales</span></div>
+    <div class="live-dot"></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);background:var(--surface2);padding:4px 10px;border-radius:6px;border:1px solid var(--border);" id="hdr-date"></div>
+  </div>
+  <div class="hdr-right">
+    <span class="theme-label" id="theme-lbl">Night</span>
+    <div class="theme-toggle" onclick="toggleTheme()"><div class="knob"></div></div>
+    <div class="owner-pill"><div class="avatar">TB</div>Thomas Blase</div>
+    <button class="icon-btn accent" id="sync-btn" onclick="syncAll()">
+      <span id="sync-icon">↻</span> Sync
+    </button>
+    <a class="icon-btn" href="https://app.hubspot.com/tasks/43556656/view/all" target="_blank">HubSpot ↗</a>
+    <a class="icon-btn" href="https://calendar.google.com" target="_blank">Calendar ↗</a>
+  </div>
+</header>
+
+<!-- FOCUS BAR -->
+<div class="focus-bar">
+  <div class="focus-label">Today</div>
+  <div class="focus-sep"></div>
+  <div class="focus-stats">
+    <div class="fstat"><b class="red" id="f-over">—</b> Overdue</div>
+    <div class="focus-sep"></div>
+    <div class="fstat"><b class="amber" id="f-today">—</b> Due Today</div>
+    <div class="focus-sep"></div>
+    <div class="fstat"><b class="green" id="f-deals">—</b> Active Deals</div>
+    <div class="focus-sep"></div>
+    <div class="fstat"><b class="green" id="f-val">—</b> Pipeline</div>
+  </div>
+  <div class="focus-right">⏱ 5-Hour Execution Day</div>
+</div>
+
+<!-- MAIN GRID -->
+<div class="grid">
+
+  <!-- LEFT: SCHEDULE -->
+  <div class="col">
+    <div class="panel-head">
+      <div class="panel-title"><div class="panel-dot"></div> Today's Schedule</div>
+      <a class="panel-action" href="https://calendar.google.com/calendar/r/eventedit" target="_blank">+ Event</a>
+    </div>
+    <div class="stats-row cols-2">
+      <div class="stat-cell"><div class="stat-val" id="cal-events">—</div><div class="stat-lbl">Events</div></div>
+      <div class="stat-cell"><div class="stat-val amber" id="cal-hours">—</div><div class="stat-lbl">Booked</div></div>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-chip active" data-cal="all"     onclick="filterCal(this,'all')">All</button>
+      <button class="filter-chip"        data-cal="meeting" onclick="filterCal(this,'meeting')">Meetings</button>
+      <button class="filter-chip amber-chip" data-cal="focus" onclick="filterCal(this,'focus')">Focus</button>
+      <button class="filter-chip"        data-cal="admin"   onclick="filterCal(this,'admin')">Admin</button>
+    </div>
+    <div class="scroll" id="cal-list"></div>
+  </div>
+
+  <!-- MIDDLE: TASKS + PIPELINE -->
+  <div class="col">
+    <div class="tasks-wrap">
+      <div class="panel-head">
+        <div class="panel-title">
+          <div class="panel-dot"></div> Tasks
+          <span class="badge badge-red" id="over-badge" style="margin-left:2px;">—</span>
+        </div>
+        <a class="panel-action" href="https://app.hubspot.com/tasks/43556656/view/all" target="_blank">All in HubSpot ↗</a>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip red-chip active" data-task="overdue"  onclick="filterTask(this,'overdue')">Overdue</button>
+        <button class="filter-chip amber-chip"      data-task="today"    onclick="filterTask(this,'today')">Today</button>
+        <button class="filter-chip"                 data-task="upcoming" onclick="filterTask(this,'upcoming')">Upcoming</button>
+        <button class="filter-chip blue-chip"       data-task="medium"   onclick="filterTask(this,'medium')">Priority</button>
+        <div class="filter-sep"></div>
+        <button class="filter-chip" data-task="blase" onclick="filterTask(this,'blase')">Blase</button>
+        <button class="filter-chip" data-task="cam"   onclick="filterTask(this,'cam')">Cam</button>
+        <button class="filter-chip" data-task="todd"  onclick="filterTask(this,'todd')">Todd</button>
+        <div class="filter-sep"></div>
+        <input class="filter-search" id="task-search" placeholder="Search…" oninput="renderTasks()">
+      </div>
+      <div class="scroll" id="task-list"></div>
+    </div>
+
+    <div class="pipe-wrap">
+      <div class="panel-head">
+        <div class="panel-title"><div class="panel-dot"></div> Pipeline</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);font-weight:600;" id="pipe-total">—</span>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip active"   data-pipe="all"     onclick="filterPipe(this,'all')">All</button>
+        <button class="filter-chip red-chip" data-pipe="past"    onclick="filterPipe(this,'past')">Past Close</button>
+        <button class="filter-chip amber-chip" data-pipe="closing" onclick="filterPipe(this,'closing')">Closing Soon</button>
+        <div class="filter-sep"></div>
+        <button class="filter-chip" data-pipe="blase" onclick="filterPipe(this,'blase')">Blase</button>
+        <button class="filter-chip" data-pipe="cam"   onclick="filterPipe(this,'cam')">Cam</button>
+        <button class="filter-chip" data-pipe="todd"  onclick="filterPipe(this,'todd')">Todd</button>
+        <div class="filter-sep"></div>
+        <input class="filter-search" id="pipe-search" placeholder="Search deals…" oninput="renderPipeline()">
+      </div>
+      <div class="pipe-scroll">
+        <div class="pipe-board" id="pipe-board"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: INSIGHTS -->
+  <div class="col">
+    <div class="panel-head">
+      <div class="panel-title"><div class="panel-dot"></div> Deal Insights</div>
+    </div>
+    <div class="stats-row cols-4">
+      <div class="stat-cell"><div class="stat-val" id="si-d">—</div><div class="stat-lbl">Disc.</div></div>
+      <div class="stat-cell"><div class="stat-val" id="si-q">—</div><div class="stat-lbl">Quoted</div></div>
+      <div class="stat-cell"><div class="stat-val amber" id="si-r">—</div><div class="stat-lbl">Review</div></div>
+      <div class="stat-cell"><div class="stat-val amber" id="si-c">—</div><div class="stat-lbl">Closing</div></div>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-chip active"    data-ins="all"     onclick="filterIns(this,'all')">All</button>
+      <button class="filter-chip red-chip"  data-ins="urgent"  onclick="filterIns(this,'urgent')">Urgent</button>
+      <button class="filter-chip amber-chip" data-ins="closing" onclick="filterIns(this,'closing')">Closing</button>
+      <button class="filter-chip blue-chip" data-ins="highval" onclick="filterIns(this,'highval')">$75k+</button>
+    </div>
+    <div class="scroll" id="insights-list"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- TASK COMPLETE MODAL -->
+<div class="modal-overlay" id="task-modal">
+  <div class="modal">
+    <div class="modal-title">Mark Task Complete</div>
+    <p class="modal-sub" id="task-modal-text"></p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+      <button class="task-choice-btn" id="complete-here-btn" onclick="completeTaskHere()">
+        <div class="choice-icon">⚡</div>
+        <div class="choice-body">
+          <div class="choice-title">Mark Complete Here</div>
+          <div class="choice-desc">Updates HubSpot instantly — no navigation needed.</div>
+        </div>
+        <div class="choice-arrow">→</div>
+      </button>
+      <a class="task-choice-btn" id="task-hs-link" href="#" target="_blank" onclick="closeModal('task-modal')">
+        <div class="choice-icon">↗</div>
+        <div class="choice-body">
+          <div class="choice-title">Open in HubSpot</div>
+          <div class="choice-desc">Navigate to the full task view in HubSpot.</div>
+        </div>
+        <div class="choice-arrow">→</div>
+      </a>
+    </div>
+    <div class="modal-actions" style="margin-top:12px;">
+      <button class="btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+      <button class="btn-secondary" onclick="dismissTask()" style="color:var(--text3);">Hide from View</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEAL STAGE MODAL -->
+<div class="modal-overlay" id="deal-modal">
+  <div class="modal">
+    <div class="modal-title">Update Deal Stage</div>
+    <p class="modal-sub" id="deal-modal-text"></p>
+    <label class="form-label">Move to Stage</label>
+    <select class="form-select" id="deal-stage-sel">
+      <option value="1018756729">Discovery</option>
+      <option value="986576445">Quote Prepared</option>
+      <option value="986576447">Feasibility</option>
+      <option value="986576449">Ops Review</option>
+      <option value="1296484709">Contract Out</option>
+      <option value="1018756730">Get Back to Me (GBTM)</option>
+      <option value="986576450">Closed Won ✓</option>
+      <option value="986576451">Closed Lost ✗</option>
+    </select>
+    <div class="form-note">Updates HubSpot instantly — no navigation needed.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('deal-modal')">Cancel</button>
+      <button class="btn-primary"   onclick="moveDealStageNow()">Update Stage in HubSpot</button>
+    </div>
+  </div>
+</div>
+
+<!-- EVENT MODAL -->
+<div class="modal-overlay" id="ev-modal">
+  <div class="modal">
+    <div class="modal-title">Edit Event</div>
+    <p class="modal-sub">Changes open in Google Calendar — save from there.</p>
+    <label class="form-label">Title</label>
+    <input class="form-input" id="ev-title" type="text">
+    <label class="form-label">Date</label>
+    <input class="form-input" id="ev-date" type="date">
+    <label class="form-label">Start Time</label>
+    <input class="form-input" id="ev-start" type="time">
+    <label class="form-label">End Time</label>
+    <input class="form-input" id="ev-end" type="time">
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('ev-modal')">Cancel</button>
+      <a class="btn-link" id="ev-gcal-link" href="#" target="_blank" onclick="closeModal('ev-modal')">Open in Google Calendar ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script type="module">
+// ════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════
+const HS_BASE  = 'https://app.hubspot.com/contacts/43556656/record/0-3/';
+const HS_TASK  = 'https://app.hubspot.com/tasks/43556656/view/all/task/';
+const TODAY_STR = new Date().toISOString().split('T')[0];
+
+const STAGE_MAP   = {'1018756729':'Discovery','986576445':'Quote Prep','986576447':'Feasibility','986576449':'Ops Review','1296484709':'Contract Out','1018756730':'GBTM','986576450':'Closed Won','986576451':'Closed Lost'};
+const STAGE_ORDER = ['1018756729','986576445','986576447','986576449','1296484709','1018756730'];
+const OWNER_MAP   = {'2106383852':{name:'Blase',key:'blase',dot:'dot-tb'},'503006120':{name:'Cam',key:'cam',dot:'dot-cam'},'77810569':{name:'Todd',key:'todd',dot:'dot-todd'}};
+
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let TASKS = [], DEALS = [], EVENTS = [];
+let dismissedTasks = new Set();
+let calFilter = 'all', taskFilter = 'overdue', pipeFilter = 'all', insFilter = 'all';
+let currentTaskId = null, currentTaskName = null;
+let currentDealId = null, currentDealName = null;
+
+document.getElementById('hdr-date').textContent =
+  new Date().toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+// ════════════════════════════════════════════════════
+// THEME
+// ════════════════════════════════════════════════════
+window.toggleTheme = function() {
+  const html = document.documentElement;
+  const dark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('theme-lbl').textContent = dark ? 'Day' : 'Night';
+};
+
+// ════════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════════
+function fmt$(n) {
+  n = Number(n)||0;
+  if(n>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+  if(n>=1000) return '$'+Math.round(n/1000)+'k';
+  return '$'+n;
+}
+function isPast(ds)  { return ds && new Date(ds+'T00:00:00') < new Date(TODAY_STR+'T00:00:00'); }
+function isSoon(ds)  { if(!ds) return false; const d=new Date(ds+'T00:00:00'),t=new Date(TODAY_STR+'T00:00:00'); const diff=(d-t)/86400000; return diff>=0&&diff<=30; }
+function taskStatus(due) {
+  if(!due) return 'upcoming';
+  const d=new Date(due+'T00:00:00'), t=new Date(TODAY_STR+'T00:00:00');
+  if(d<t) return 'overdue';
+  if(d.toDateString()===t.toDateString()) return 'today';
+  return 'upcoming';
+}
+function ownerInfo(ownerId) { return OWNER_MAP[ownerId] || {name:'—',key:'other',dot:'dot-xx'}; }
+function fmtClose(ds) { return ds ? new Date(ds).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'; }
+
+// ════════════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════════════
+let toastTimer;
+window.toast = function(msg, type='success') {
+  document.getElementById('toast-icon').textContent = type==='loading'?'↻':type==='error'?'✗':'✓';
+  document.getElementById('toast-msg').textContent = msg;
+  const el = document.getElementById('toast');
+  el.className = 'toast show '+type;
+  clearTimeout(toastTimer);
+  if(type!=='loading') toastTimer = setTimeout(()=>el.classList.remove('show'), 3500);
+};
+
+// ════════════════════════════════════════════════════
+// MODALS
+// ════════════════════════════════════════════════════
+window.closeModal = id => document.getElementById(id).classList.remove('open');
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+
+// ════════════════════════════════════════════════════
+// API CALLS (server-side functions — no CORS)
+// ════════════════════════════════════════════════════
+async function apiFetch(path, opts={}) {
+  const res = await fetch(path, {
+    ...opts,
+    headers: {'Content-Type':'application/json', ...(opts.headers||{})},
+  });
+  const data = await res.json();
+  if(!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  return data.data;
+}
+
+// ════════════════════════════════════════════════════
+// LOAD ALL DATA
+// ════════════════════════════════════════════════════
+async function loadAll() {
+  const setMsg = m => { const el=document.getElementById('loading-msg'); if(el) el.textContent=m; };
+
+  try {
+    setMsg('Loading tasks from HubSpot…');
+    const [tasks, deals, events] = await Promise.allSettled([
+      apiFetch('/api/tasks'),
+      apiFetch('/api/deals'),
+      apiFetch('/api/calendar'),
+    ]);
+
+    if(tasks.status === 'fulfilled')  TASKS  = tasks.value  || [];
+    if(deals.status === 'fulfilled')  DEALS  = deals.value  || [];
+    if(events.status === 'fulfilled') EVENTS = events.value || [];
+
+    // Map ownerKey onto tasks and deals using OWNER_MAP
+    TASKS = TASKS.map(t => ({...t, ownerKey: ownerInfo(t.owner).key}));
+    DEALS = DEALS.map(d => ({...d, ownerKey: ownerInfo(d.owner).key}));
+
+    setMsg('Rendering dashboard…');
+    renderAll();
+
+    // Hide loading overlay
+    const overlay = document.getElementById('loading-overlay');
+    overlay.classList.add('hidden');
+    setTimeout(() => overlay.style.display = 'none', 500);
+
+  } catch(e) {
+    setMsg('Error loading data: ' + e.message);
+    toast('Failed to load data: ' + e.message, 'error');
+  }
+}
+
+function renderAll() {
+  renderCal();
+  renderTasks();
+  renderPipeline();
+  renderInsights();
+}
+
+// ════════════════════════════════════════════════════
+// CALENDAR
+// ════════════════════════════════════════════════════
+window.filterCal = function(btn, f) {
+  calFilter = f;
+  document.querySelectorAll('[data-cal]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCal();
+};
+
+function renderCal() {
+  const tagMap = {meeting:'MEETING',focus:'FOCUS',admin:'ADMIN'};
+  const tagCls = {meeting:'tag-meet',focus:'tag-focus',admin:'tag-admin'};
+  const list   = calFilter==='all' ? EVENTS : EVENTS.filter(e=>e.type===calFilter);
+
+  // Stats
+  let totalMins = 0;
+  EVENTS.forEach(e => {
+    if(e.startISO && e.endISO) {
+      totalMins += Math.max(0,(new Date(e.endISO)-new Date(e.startISO))/60000);
+    }
+  });
+  document.getElementById('cal-events').textContent = EVENTS.length || '0';
+  document.getElementById('cal-hours').textContent  = totalMins ? (totalMins/60).toFixed(1)+'h' : '0h';
+
+  const el = document.getElementById('cal-list');
+  if(!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div>No events match this filter.</div>'; return; }
+
+  el.innerHTML = list.map(ev => {
+    const tCls = tagCls[ev.type]||'tag-admin';
+    const tLbl = tagMap[ev.type]||'BLOCK';
+    const safeEv = JSON.stringify(ev).replace(/'/g,"&#39;");
+    return `<div class="ev-item">
+      <div class="ev-time-col">
+        <div class="ev-time">${ev.start}</div>
+        <div class="ev-dur">${ev.dur||''}</div>
+      </div>
+      <div class="ev-content">
+        <div class="ev-title">${ev.title}</div>
+        <div class="ev-tags">
+          <span class="tag ${tCls}">${tLbl}</span>
+          <span class="tag tag-admin">${ev.start}${ev.end?' – '+ev.end:''}</span>
+        </div>
+        <div class="ev-actions">
+          <button class="tiny-btn" onclick='openEditEvent(${safeEv})'>Edit</button>
+          <a class="tiny-btn" href="${ev.link}" target="_blank">Open ↗</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.openEditEvent = function(ev) {
+  document.getElementById('ev-title').value = ev.title||'';
+  document.getElementById('ev-date').value  = TODAY_STR;
+  document.getElementById('ev-start').value = '';
+  document.getElementById('ev-end').value   = '';
+  document.getElementById('ev-gcal-link').href = ev.link||'https://calendar.google.com';
+  openModal('ev-modal');
+};
+
+// ════════════════════════════════════════════════════
+// TASKS
+// ════════════════════════════════════════════════════
+window.filterTask = function(btn, f) {
+  taskFilter = f;
+  document.querySelectorAll('[data-task]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+};
+
+window.renderTasks = function() {
+  const search  = (document.getElementById('task-search').value||'').toLowerCase();
+  const visible = TASKS.filter(t=>!dismissedTasks.has(t.id));
+
+  let list = [...visible];
+  if(taskFilter==='overdue')       list=visible.filter(t=>taskStatus(t.due)==='overdue');
+  else if(taskFilter==='today')    list=visible.filter(t=>taskStatus(t.due)==='today');
+  else if(taskFilter==='upcoming') list=visible.filter(t=>taskStatus(t.due)==='upcoming');
+  else if(taskFilter==='medium')   list=visible.filter(t=>t.pri==='MEDIUM'||t.pri==='HIGH');
+  else if(taskFilter==='blase')    list=visible.filter(t=>t.ownerKey==='blase');
+  else if(taskFilter==='cam')      list=visible.filter(t=>t.ownerKey==='cam');
+  else if(taskFilter==='todd')     list=visible.filter(t=>t.ownerKey==='todd');
+  if(search) list=list.filter(t=>t.subj.toLowerCase().includes(search));
+
+  const overdue = visible.filter(t=>taskStatus(t.due)==='overdue');
+  const today   = visible.filter(t=>taskStatus(t.due)==='today');
+  document.getElementById('f-over').textContent  = overdue.length;
+  document.getElementById('f-today').textContent = today.length;
+  document.getElementById('over-badge').textContent = overdue.length;
+
+  const el = document.getElementById('task-list');
+  if(!list.length) {
+    el.innerHTML='<div class="empty-state"><div class="empty-icon">✓</div>'+(taskFilter==='overdue'?'No overdue tasks — great shape!':'No tasks match this filter.')+'</div>';
+    return;
+  }
+  el.innerHTML = list.map(t => {
+    const status  = taskStatus(t.due);
+    const priCls  = t.pri==='HIGH'?'pri-high':t.pri==='MEDIUM'?'pri-med':'pri-low';
+    const badge   = status==='overdue'
+      ? `<span class="badge badge-red">OVERDUE ${t.due}</span>`
+      : status==='today'
+      ? `<span class="badge badge-amber">TODAY</span>`
+      : `<span class="badge badge-grey">${t.due||'—'}</span>`;
+    const priTag  = t.pri==='MEDIUM'?`<span class="badge badge-blue">MED</span>`:'';
+    const own     = ownerInfo(t.owner);
+    const safe    = t.subj.replace(/'/g,'&#39;').replace(/"/g,'&quot;');
+    return `<div class="task-item ${priCls}" id="task-${t.id}">
+      <div class="task-cb" onclick="onTaskClick('${t.id}','${safe}')"></div>
+      <div class="task-body">
+        <div class="task-name">${t.subj}</div>
+        <div class="task-meta">
+          ${badge}${priTag}
+          <span class="owner-tag">${own.name}</span>
+          <a class="hs-link-btn" href="${HS_TASK}${t.id}" target="_blank">HubSpot ↗</a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+};
+
+window.onTaskClick = function(id, subj) {
+  currentTaskId   = id;
+  currentTaskName = subj;
+  document.getElementById('complete-here-btn').disabled = false;
+  document.getElementById('task-modal-text').textContent = `"${subj}"`;
+  document.getElementById('task-hs-link').href = HS_TASK + id;
+  openModal('task-modal');
+};
+
+// ⚡ THE KEY FIX: calls /api/complete-task (our own Netlify function)
+// which runs server-side — no CORS, no exposed token, instant HubSpot update
+window.completeTaskHere = async function() {
+  if(!currentTaskId) return;
+  const id   = currentTaskId;
+  const name = currentTaskName;
+  const btn  = document.getElementById('complete-here-btn');
+  btn.disabled = true;
+  btn.querySelector('.choice-title').textContent = 'Updating HubSpot…';
+  toast('Marking complete in HubSpot…', 'loading');
+
+  try {
+    await apiFetch('/api/complete-task', {
+      method: 'POST',
+      body: JSON.stringify({ taskId: id, taskName: name }),
+    });
+
+    // Success — remove from state and UI
+    TASKS = TASKS.filter(t => t.id !== id);
+    dismissedTasks.add(id);
+    closeModal('task-modal');
+    renderTasks();
+    toast('Task marked complete in HubSpot ✓');
+
+  } catch(e) {
+    btn.disabled = false;
+    btn.querySelector('.choice-title').textContent = 'Mark Complete Here';
+    toast('HubSpot update failed: ' + e.message, 'error');
+  }
+};
+
+window.dismissTask = function() {
+  if(currentTaskId) {
+    dismissedTasks.add(currentTaskId);
+    closeModal('task-modal');
+    renderTasks();
+    toast('Task hidden from view');
+  }
+};
+
+// ════════════════════════════════════════════════════
+// PIPELINE
+// ════════════════════════════════════════════════════
+window.filterPipe = function(btn, f) {
+  pipeFilter = f;
+  document.querySelectorAll('[data-pipe]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPipeline();
+};
+
+function renderPipeline() {
+  let list = [...DEALS];
+  if(pipeFilter==='past')    list=list.filter(d=>isPast(d.close));
+  else if(pipeFilter==='closing') list=list.filter(d=>isSoon(d.close)&&!isPast(d.close));
+  else if(pipeFilter==='blase')   list=list.filter(d=>d.ownerKey==='blase');
+  else if(pipeFilter==='cam')     list=list.filter(d=>d.ownerKey==='cam');
+  else if(pipeFilter==='todd')    list=list.filter(d=>d.ownerKey==='todd');
+
+  const search = (document.getElementById('pipe-search').value||'').toLowerCase();
+  if(search) list=list.filter(d=>d.name.toLowerCase().includes(search));
+
+  const total = DEALS.reduce((s,d)=>s+d.amount,0);
+  const shown = list.reduce((s,d)=>s+d.amount,0);
+  document.getElementById('pipe-total').textContent = fmt$(shown)+(pipeFilter!=='all'?' shown':'');
+  document.getElementById('f-deals').textContent = DEALS.length;
+  document.getElementById('f-val').textContent   = fmt$(total);
+
+  const byS = s => DEALS.filter(d=>d.stage===s).length;
+  document.getElementById('si-d').textContent = byS('1018756729');
+  document.getElementById('si-q').textContent = byS('986576445');
+  document.getElementById('si-r').textContent = byS('986576449')+byS('986576447');
+  document.getElementById('si-c').textContent = byS('1296484709');
+
+  const board = document.getElementById('pipe-board');
+  board.innerHTML = STAGE_ORDER.map(sid => {
+    const cards = list.filter(d=>d.stage===sid).sort((a,b)=>b.amount-a.amount).map(d=>{
+      const past = isPast(d.close);
+      const cls  = 'deal-card'+(past?' past-close':sid==='1018756730'?' gbtm-card':'');
+      const own  = ownerInfo(d.owner);
+      const close = (past?'⚠ ':isSoon(d.close)?'⏰ ':'')+fmtClose(d.close);
+      const safe  = d.name.replace(/'/g,'&#39;');
+      return `<div class="${cls}" onclick="onDealClick('${d.id}','${safe}','${d.stage}')">
+        <div class="deal-owner"><span class="owner-dot ${own.dot}"></span><span class="owner-name">${own.name}</span></div>
+        <div class="deal-name">${d.name}</div>
+        <div class="deal-amt">${fmt$(d.amount)}</div>
+        <div class="deal-close">${close}</div>
+      </div>`;
+    }).join('');
+    return `<div class="stage-col">
+      <div class="stage-head">${STAGE_MAP[sid]}<span class="stage-count">${list.filter(d=>d.stage===sid).length}</span></div>
+      ${cards||'<div class="empty-state" style="padding:6px 0;">—</div>'}
+    </div>`;
+  }).join('');
+}
+
+window.onDealClick = function(id, name, stage) {
+  currentDealId   = id;
+  currentDealName = name;
+  document.getElementById('deal-modal-text').textContent = name;
+  document.getElementById('deal-stage-sel').value = stage;
+  openModal('deal-modal');
+};
+
+// ⚡ Direct HubSpot deal stage update via server-side function
+window.moveDealStageNow = async function() {
+  if(!currentDealId) return;
+  const id    = currentDealId;
+  const name  = currentDealName;
+  const stage = document.getElementById('deal-stage-sel').value;
+  const btn   = document.querySelector('#deal-modal .btn-primary');
+  if(btn) { btn.disabled=true; btn.textContent='Updating…'; }
+  toast('Moving deal stage…', 'loading');
+
+  try {
+    await apiFetch('/api/deals', {
+      method: 'POST',
+      body: JSON.stringify({ dealId: id, stageId: stage, dealName: name }),
+    });
+
+    // Update local state
+    const deal = DEALS.find(d=>d.id===id);
+    if(deal) deal.stage = stage;
+    closeModal('deal-modal');
+    renderPipeline();
+    renderInsights();
+    toast(`Deal moved to ${STAGE_MAP[stage]||stage} ✓`);
+
+  } catch(e) {
+    if(btn) { btn.disabled=false; btn.textContent='Update Stage in HubSpot'; }
+    toast('Failed to move deal: '+e.message, 'error');
+  }
+};
+
+// ════════════════════════════════════════════════════
+// INSIGHTS
+// ════════════════════════════════════════════════════
+window.filterIns = function(btn, f) {
+  insFilter = f;
+  document.querySelectorAll('[data-ins]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInsights();
+};
+
+function renderInsights() {
+  let list = [...DEALS].sort((a,b)=>{
+    const ap=isPast(a.close)?2:isSoon(a.close)?1:0;
+    const bp=isPast(b.close)?2:isSoon(b.close)?1:0;
+    return bp-ap || b.amount-a.amount;
+  });
+  if(insFilter==='urgent')  list=list.filter(d=>isPast(d.close));
+  else if(insFilter==='closing') list=list.filter(d=>isSoon(d.close)&&!isPast(d.close));
+  else if(insFilter==='highval') list=list.filter(d=>d.amount>=75000);
+
+  function txt(d) {
+    const s=STAGE_MAP[d.stage];
+    if(isPast(d.close))       return 'Close date has passed. Update close date, advance to contract, or mark lost immediately.';
+    if(s==='Discovery')       return 'Qualify fully this week and convert to a quote.';
+    if(s==='Quote Prep')      return 'Quote is out. Follow up to confirm receipt — push to Ops Review.';
+    if(s==='Feasibility')     return 'In feasibility. Confirm scope with ops and advance to quote.';
+    if(s==='Ops Review')      return 'Ops reviewing. Confirm requirements then prep the contract.';
+    if(s==='Contract Out')    return 'Contract is out — 1–2 touches from closed. Follow up on signatures.';
+    if(s==='GBTM')            return 'Re-engage with a value-add check-in or updated timeline.';
+    return 'Monitor and advance to the next stage.';
+  }
+  function cta(d) {
+    const s=STAGE_MAP[d.stage];
+    if(isPast(d.close))       return 'Update close date now';
+    if(s==='Discovery')       return 'Book call → get to quote';
+    if(s==='Quote Prep')      return 'Follow up on quote';
+    if(s==='Feasibility')     return 'Confirm scope → quote';
+    if(s==='Ops Review')      return 'Confirm ops → send contract';
+    if(s==='Contract Out')    return 'Follow up on signatures';
+    if(s==='GBTM')            return 'Re-engage with check-in';
+    return 'Open in HubSpot';
+  }
+
+  const el = document.getElementById('insights-list');
+  if(!list.length) { el.innerHTML='<div class="empty-state"><div class="empty-icon">📊</div>No deals match this filter.</div>'; return; }
+
+  el.innerHTML = list.slice(0,12).map(d => {
+    const own   = ownerInfo(d.owner);
+    const past  = isPast(d.close);
+    const soon  = isSoon(d.close);
+    const close = d.close ? new Date(d.close).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
+    const urgTag = past
+      ? `<span class="badge badge-red" style="margin-left:4px;">PAST CLOSE</span>`
+      : soon ? `<span class="badge badge-amber" style="margin-left:4px;">CLOSING</span>` : '';
+    return `<div class="insight-item">
+      <div class="insight-head">
+        <span class="owner-dot ${own.dot}" style="width:7px;height:7px;margin-top:3px;flex-shrink:0;"></span>
+        <div class="insight-name">${d.name}</div>
+        <div class="insight-amt">${fmt$(d.amount)}</div>
+      </div>
+      <div class="insight-stage">${STAGE_MAP[d.stage]||d.stage} · ${own.name} · ${close}${urgTag}</div>
+      <div class="insight-body">${txt(d)}</div>
+      <a class="insight-cta" href="${HS_BASE}${d.id}" target="_blank">${cta(d)}</a>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
+// SYNC
+// ════════════════════════════════════════════════════
+window.syncAll = async function() {
+  const btn  = document.getElementById('sync-btn');
+  const icon = document.getElementById('sync-icon');
+  icon.classList.add('spin');
+  btn.disabled = true;
+  toast('Syncing live data…', 'loading');
+  try {
+    await loadAll();
+    toast('Dashboard synced ✓');
+  } catch(e) {
+    toast('Sync failed: '+e.message, 'error');
+  } finally {
+    icon.classList.remove('spin');
+    btn.disabled = false;
+  }
+};
+
+// ════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════
+loadAll();
+</script>
+</body>
+</html>

@@ -3,8 +3,19 @@
   "version": "1.0.0",
   "description": "Launch House Golf Sales Dashboard — Netlify + HubSpot + Google Calendar",
   "private": true,
-  "scripts": { "dev": "netlify dev", "build": "echo 'Static site — no build step needed'" },
-  "dependencies": { "@supabase/supabase-js": "^2.39.0", "node-fetch": "^3.3.2" },
-  "devDependencies": { "netlify-cli": "^17.0.0" },
-  "engines": { "node": ">=18.0.0" }
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site — no build step needed'",
+    "lint": "echo 'No linter configured'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }
