@@ -71,7 +71,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 const SUPABASE_URL  = 'https://bruqilvhrqctgcjpmfft.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJydXFpbHZocnFjdGdjanBtZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTQxNTUsImV4cCI6MjA4ODY3MDE1NX0.qLtqt3WrBhe6RMFvDR_0wugLkF7LoSPXQ0Z2yoC02Rs';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 function showError(msg) {
   const el = document.getElementById('login-error');
@@ -81,25 +81,25 @@ function showError(msg) {
 
 // Check if already logged in
 (async function checkSession() {
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (session) {
     const email = session.user.email || '';
     if (email.endsWith('@launchhouse.golf')) {
       window.location.href = '/';
     } else {
-      await supabase.auth.signOut();
+      await sb.auth.signOut();
       showError('Access restricted to @launchhouse.golf email addresses.');
     }
   }
 
   // Handle OAuth callback (hash contains access_token after redirect)
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  sb.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       const email = session.user.email || '';
       if (email.endsWith('@launchhouse.golf')) {
         window.location.href = '/';
       } else {
-        await supabase.auth.signOut();
+        await sb.auth.signOut();
         showError('Access restricted to @launchhouse.golf email addresses.');
       }
     }
@@ -111,7 +111,7 @@ async function signIn() {
   btn.disabled = true;
   btn.textContent = 'Redirecting…';
 
-  const { error } = await supabase.auth.signInWithOAuth({
+  const { error } = await sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
       redirectTo: 'https://sales.launchhouse.golf/login.html',
