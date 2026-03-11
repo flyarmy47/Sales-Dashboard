@@ -11,10 +11,11 @@ exports.handler = async (event) => {
   // Check HubSpot token exists
   checks.hubspot_token = !!process.env.HUBSPOT_ACCESS_TOKEN ? 'configured' : 'MISSING';
 
-  // Check Google Calendar credentials
+  // Check Google Calendar credentials (OAuth2 refresh token flow)
   checks.google_calendar =
-    (!!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-     !!process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)
+    (!!process.env.GOOGLE_OAUTH_CLIENT_ID &&
+     !!process.env.GOOGLE_OAUTH_CLIENT_SECRET &&
+     !!process.env.GOOGLE_OAUTH_REFRESH_TOKEN)
       ? 'configured' : 'not_configured';
 
   // Check Supabase
