@@ -109,10 +109,14 @@ export async function createTaskFromEvent(eventTitle, eventDate, eventStart, eve
 export async function linkEventToDeal(eventTitle, eventDate, dealId) {
   return apiFetch('/api/link-event-to-deal', {
     method: 'POST',
-    body: JSON.stringify({
-      eventTitle,
-      eventDate,
-      dealId,
-    }),
+    body: JSON.stringify({ eventTitle, eventDate, dealId }),
+  });
+}
+
+// Update (reschedule / rename) a Google Calendar event
+export async function updateCalendarEvent(eventId, calendarId, title, startISO, endISO) {
+  return apiFetch('/api/update-event', {
+    method: 'POST',
+    body: JSON.stringify({ eventId, calendarId, title, startISO, endISO }),
   });
 }

@@ -394,6 +394,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .activity-item.task_completed .activity-icon{background:var(--accent-bg);border-color:var(--accent-bd);color:var(--accent);}
 .activity-item.deal_stage_moved .activity-icon{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
 .activity-item.event_linked_to_deal .activity-icon{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+.activity-item.event_rescheduled .activity-icon{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
 .activity-content{flex:1;min-width:0;}
 .activity-text{font-size:13px;font-weight:500;color:var(--text);line-height:1.35;margin-bottom:3px;}
 .activity-time{font-size:11px;color:var(--text3);font-weight:500;}
@@ -822,19 +823,27 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 <div class="modal-overlay" id="ev-modal">
   <div class="modal">
     <div class="modal-close-btn" onclick="closeModal('ev-modal')">✕</div>
-    <div class="modal-title">Calendar Event</div>
-    <p class="modal-sub">View and open in Google Calendar to make changes.</p>
+    <div class="modal-title">Edit Event</div>
+    <p class="modal-sub" id="ev-modal-sub">Edit title or reschedule — saves directly to Google Calendar.</p>
     <label class="form-label">Title</label>
-    <input class="form-input" id="ev-title" type="text" readonly>
+    <input class="form-input" id="ev-title" type="text" placeholder="Event title">
     <label class="form-label">Date</label>
-    <input class="form-input" id="ev-date" type="date" readonly>
-    <label class="form-label">Start Time</label>
-    <input class="form-input" id="ev-start" type="time" readonly>
-    <label class="form-label">End Time</label>
-    <input class="form-input" id="ev-end" type="time" readonly>
+    <input class="form-input" id="ev-date" type="date">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div>
+        <label class="form-label">Start Time</label>
+        <input class="form-input" id="ev-start" type="time">
+      </div>
+      <div>
+        <label class="form-label">End Time</label>
+        <input class="form-input" id="ev-end" type="time">
+      </div>
+    </div>
+    <div id="ev-save-status" style="display:none;margin-top:12px;font-size:12px;padding:8px 12px;border-radius:7px;"></div>
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeModal('ev-modal')">Close</button>
-      <a class="btn-link" id="ev-gcal-link" href="#" target="_blank" onclick="closeModal('ev-modal')">Open in Google Calendar ↗</a>
+      <button class="btn-secondary" onclick="closeModal('ev-modal')">Cancel</button>
+      <a class="btn-secondary" id="ev-gcal-link" href="#" target="_blank" style="display:inline-flex;align-items:center;">Open in GCal ↗</a>
+      <button class="btn-primary" id="ev-save-btn" onclick="saveEventChanges()">Save to Calendar</button>
     </div>
   </div>
 </div>
@@ -1301,9 +1310,10 @@ function renderActivityFeed() {
   }
 
   const iconMap = {
-    task_completed:      '✓',
-    deal_stage_moved:    '→',
-    event_linked_to_deal:'📅',
+    task_completed:       '✓',
+    deal_stage_moved:     '→',
+    event_linked_to_deal: '📅',
+    event_rescheduled:    '🗓',
   };
 
   el.innerHTML = ACTIVITY_FEED.map(a => {
@@ -1431,7 +1441,7 @@ function renderCal() {
           ${ev.end ? `<span class="tag tag-admin">${ev.start} – ${ev.end}</span>` : ''}
         </div>
         <div class="ev-actions">
-          <button class="tiny-btn" onclick='openEditEvent(${safeEv})'>View</button>
+          <button class="tiny-btn" onclick='openEditEvent(${safeEv})'>✏ Edit</button>
           <a class="tiny-btn" href="${ev.link}" target="_blank">Open ↗</a>
         </div>
       </div>
@@ -1440,12 +1450,154 @@ function renderCal() {
 }
 
 window.openEditEvent = function(ev) {
-  document.getElementById('ev-title').value = ev.title||'';
-  document.getElementById('ev-date').value  = TODAY_STR;
-  document.getElementById('ev-start').value = ev.startISO ? ev.startISO.slice(11,16) : '';
-  document.getElementById('ev-end').value   = ev.endISO   ? ev.endISO.slice(11,16)   : '';
-  document.getElementById('ev-gcal-link').href = ev.link||'https://calendar.google.com';
+  // Store the full event object so saveEventChanges can reference it
+  currentEvent = ev;
+
+  document.getElementById('ev-title').value = ev.title || '';
+
+  // Date — extract YYYY-MM-DD from startISO (or fall back to today)
+  const dateStr = ev.startISO
+    ? new Date(ev.startISO).toLocaleDateString('sv-SE', { timeZone: 'America/New_York' })
+    : TODAY_STR;
+  document.getElementById('ev-date').value  = dateStr;
+
+  // Times — HH:MM in New York time
+  const toNYTime = iso => {
+    if (!iso) return '';
+    return new Date(iso).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/New_York',
+    });
+  };
+  document.getElementById('ev-start').value = toNYTime(ev.startISO);
+  document.getElementById('ev-end').value   = toNYTime(ev.endISO);
+
+  document.getElementById('ev-gcal-link').href = ev.link || 'https://calendar.google.com';
+
+  // Reset status
+  const status = document.getElementById('ev-save-status');
+  status.style.display = 'none';
+  status.textContent = '';
+
+  const btn = document.getElementById('ev-save-btn');
+  btn.disabled = false;
+  btn.textContent = 'Save to Calendar';
+
+  // If event is all-day (no time), hide time row and disable save
+  if (ev.allDay) {
+    document.getElementById('ev-modal-sub').textContent = 'All-day events — open in Google Calendar to edit.';
+    btn.style.display = 'none';
+  } else {
+    document.getElementById('ev-modal-sub').textContent = 'Edit title or reschedule — saves directly to Google Calendar.';
+    btn.style.display = '';
+  }
+
   openModal('ev-modal');
+};
+
+window.saveEventChanges = async function() {
+  if (!currentEvent) return;
+
+  const title    = document.getElementById('ev-title').value.trim();
+  const dateStr  = document.getElementById('ev-date').value;         // YYYY-MM-DD
+  const startStr = document.getElementById('ev-start').value;        // HH:MM
+  const endStr   = document.getElementById('ev-end').value;          // HH:MM
+
+  if (!dateStr || !startStr || !endStr) {
+    toast('Date and times are required', 'error');
+    return;
+  }
+
+  // Build ISO strings in New York timezone offset
+  // We compute the offset from the original event's startISO if available
+  const tz = 'America/New_York';
+  const toISO = (date, time) => {
+    // Create a local Date in NY time, then convert to ISO
+    const dtStr = `${date}T${time}:00`;
+    // Use the browser's Intl to resolve the NY offset for this exact date
+    const localDate = new Date(dtStr);
+    // We send the dateTime string with the timezone identifier to the server
+    return `${date}T${time}:00`;
+  };
+
+  const startISO = toISO(dateStr, startStr);
+  const endISO   = toISO(dateStr, endStr);
+
+  const btn    = document.getElementById('ev-save-btn');
+  const status = document.getElementById('ev-save-status');
+
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+  toast('Saving to Google Calendar…', 'loading');
+
+  try {
+    const calendarId = process.env?.THOMAS_CALENDAR_ID || 'primary';
+
+    const updated = await apiFetch('/api/update-event', {
+      method: 'POST',
+      body: JSON.stringify({
+        eventId:    currentEvent.id,
+        calendarId: currentEvent.calendarId || 'primary',
+        title:      title || currentEvent.title,
+        startISO,
+        endISO,
+        timeZone:   tz,
+      }),
+    });
+
+    // Live-update the EVENTS array
+    const idx = EVENTS.findIndex(e => e.id === currentEvent.id);
+    if (idx !== -1) {
+      EVENTS[idx] = {
+        ...EVENTS[idx],
+        title:    title || EVENTS[idx].title,
+        startISO: updated.startISO || EVENTS[idx].startISO,
+        endISO:   updated.endISO   || EVENTS[idx].endISO,
+      };
+    }
+
+    // Update currentEvent so repeated saves work
+    currentEvent = { ...currentEvent, title: title || currentEvent.title };
+
+    // Re-render calendar panel
+    renderCal();
+
+    // Add to activity feed
+    ACTIVITY_FEED.unshift({
+      action:      'event_rescheduled',
+      objectName:  title || currentEvent.title,
+      completedAt: new Date().toISOString(),
+      displayText: `Rescheduled "${title || currentEvent.title}" to ${dateStr} ${startStr}–${endStr}`,
+    });
+    renderActivityFeed();
+
+    // Show success in modal
+    status.style.display = 'block';
+    status.style.background = 'var(--accent-bg)';
+    status.style.color = 'var(--accent)';
+    status.style.border = '1px solid var(--accent-bd)';
+    status.textContent = '✓ Saved to Google Calendar';
+
+    btn.textContent = 'Saved ✓';
+    toast('Event updated in Google Calendar ✓');
+
+    setTimeout(() => closeModal('ev-modal'), 1500);
+
+  } catch(e) {
+    status.style.display = 'block';
+    status.style.background = 'var(--red-bg)';
+    status.style.color = 'var(--red)';
+    status.style.border = '1px solid var(--red-bd)';
+
+    if (e.message.includes('write access') || e.message.includes('scope')) {
+      status.textContent = '⚠ Calendar write permission not yet granted — please re-authorize (see instructions).';
+    } else {
+      status.textContent = '✗ ' + e.message;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Save to Calendar';
+    toast('Calendar update failed: ' + e.message, 'error');
+  }
 };
 
 // ════════════════════════════════════════════════════

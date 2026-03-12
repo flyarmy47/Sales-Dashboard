@@ -28,10 +28,17 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-async function gcalFetch(path, token) {
+async function gcalFetch(path, token, options = {}) {
   const res = await fetch(`${GCAL_BASE}${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
   });
+  // 204 No Content (e.g. delete) has no body
+  if (res.status === 204) return {};
   const data = await res.json();
   if (!res.ok) throw new Error(`GCal API error: ${data.error?.message || JSON.stringify(data)}`);
   return data;
@@ -67,4 +74,19 @@ async function getTodayEvents(calendarId) {
   return data.items || [];
 }
 
-module.exports = { getTodayEvents };
+// PATCH a Google Calendar event (reschedule / rename)
+// patch: { summary, start: { dateTime, timeZone }, end: { dateTime, timeZone } }
+async function updateCalendarEvent(eventId, calendarId, patch) {
+  const token = await getAccessToken();
+  const data = await gcalFetch(
+    `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+    token,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    },
+  );
+  return data;
+}
+
+module.exports = { getTodayEvents, updateCalendarEvent };
