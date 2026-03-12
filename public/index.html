@@ -980,6 +980,7 @@ const OWNER_MAP   = {
 // ════════════════════════════════════════════════════
 let TASKS = [], DEALS = [], EVENTS = [];
 let ACTIVITY_FEED = [], TASK_SUMMARY = null;
+let calError = null;          // holds calendar fetch error message, if any
 let dismissedTasks = new Set();
 let calFilter = 'all', taskFilter = 'overdue', pipeFilter = 'all', insFilter = 'all';
 let currentTaskId = null, currentTaskName = null;
@@ -1353,11 +1354,11 @@ async function loadAll() {
     if(activity.status=== 'fulfilled') ACTIVITY_FEED = activity.value|| [];
     if(summary.status === 'fulfilled') TASK_SUMMARY  = summary.value || null;
 
-    // Surface calendar error in the UI so it's visible
     if(events.status === 'rejected') {
-      console.error('[Calendar] API failed:', events.reason?.message || events.reason);
-      const el = document.getElementById('cal-list');
-      if(el) el.innerHTML = `<div class="empty-state" style="color:var(--red)">⚠ Calendar error: ${events.reason?.message || 'Unknown error'}</div>`;
+      calError = events.reason?.message || 'Unknown calendar error';
+      console.error('[Calendar] API failed:', calError);
+    } else {
+      calError = null;
     }
 
     TASKS = TASKS.map(t => ({...t, ownerKey: ownerInfo(t.owner).key}));
@@ -1428,7 +1429,11 @@ function renderCal() {
 
   const el = document.getElementById('cal-list');
   if(!list.length) {
-    el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div>No events match this filter.</div>';
+    if(calError) {
+      el.innerHTML=`<div class="empty-state" style="color:var(--red)">⚠ Calendar error: ${calError}</div>`;
+    } else {
+      el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div>No events match this filter.</div>';
+    }
     return;
   }
 
