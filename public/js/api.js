@@ -58,3 +58,61 @@ export async function healthCheck() {
   const res = await fetch('/api/health');
   return res.json();
 }
+
+// ── TIER 1 FEATURES ────────────────────────────────────────────────
+// Deal details
+export async function fetchDealDetails(dealId) {
+  return apiFetch(`/api/deal-details?dealId=${encodeURIComponent(dealId)}`);
+}
+
+// Task summary (overdue, next 7 days)
+export async function fetchTaskSummary() {
+  return apiFetch('/api/task-summary');
+}
+
+// Create new task
+export async function createNewTask(subject, dueDate, priority, description, associatedDealId) {
+  return apiFetch('/api/create-task', {
+    method: 'POST',
+    body: JSON.stringify({
+      subject,
+      dueDate,
+      priority: priority || 'NONE',
+      description: description || '',
+      associatedDealId: associatedDealId || null,
+    }),
+  });
+}
+
+// Activity feed
+export async function fetchActivityFeed(limit = 20) {
+  return apiFetch(`/api/activity-feed?limit=${limit}`);
+}
+
+// Create task from calendar event
+export async function createTaskFromEvent(eventTitle, eventDate, eventStart, eventEnd, eventDescription, associatedDealId, customSubject) {
+  return apiFetch('/api/create-task-from-event', {
+    method: 'POST',
+    body: JSON.stringify({
+      eventTitle,
+      eventDate,
+      eventStart,
+      eventEnd,
+      eventDescription: eventDescription || '',
+      associatedDealId: associatedDealId || null,
+      customSubject: customSubject || null,
+    }),
+  });
+}
+
+// Link event to deal
+export async function linkEventToDeal(eventTitle, eventDate, dealId) {
+  return apiFetch('/api/link-event-to-deal', {
+    method: 'POST',
+    body: JSON.stringify({
+      eventTitle,
+      eventDate,
+      dealId,
+    }),
+  });
+}

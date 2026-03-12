@@ -469,6 +469,65 @@ button{font-family:inherit;cursor:pointer;}
 .loading-bar{width:220px;height:2px;background:var(--border);border-radius:2px;overflow:hidden;}
 .loading-fill{height:100%;background:var(--accent);border-radius:2px;animation:load-progress 2s ease forwards;}
 @keyframes load-progress{0%{width:0}60%{width:70%}100%{width:100%}}
+
+/* ── TIER 1 FEATURES CSS ── */
+
+/* Task Summary Banner */
+.task-summary-banner{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tsb-item{display:flex;flex-direction:column;align-items:center;flex:1;padding:8px;border-radius:6px;background:var(--surface);border:1px solid var(--border);transition:all .14s;}
+.tsb-item.tsb-overdue{border-color:var(--red-bd);background:var(--red-bg);}
+.tsb-item.tsb-next7{border-color:var(--amber-bd);background:var(--amber-bg);}
+.tsb-count{font-size:18px;font-weight:700;color:var(--text);line-height:1;}
+.tsb-item.tsb-overdue .tsb-count{color:var(--red);}
+.tsb-item.tsb-next7 .tsb-count{color:var(--amber);}
+.tsb-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-top:4px;}
+.btn-quick-create{flex-shrink:0;background:var(--accent);color:#0C0E0A;font-weight:700;border:none;border-radius:6px;padding:8px 14px;font-size:11px;cursor:pointer;transition:opacity .14s;white-space:nowrap;}
+.btn-quick-create:hover{opacity:.85;}
+
+/* Deal Details Modal */
+.dd-section{margin-top:16px;padding-top:12px;border-top:1px solid var(--border);}
+.dd-section:first-of-type{margin-top:12px;padding-top:0;border-top:none;}
+.dd-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:10px;}
+.dd-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;}
+.dd-label{color:var(--text3);font-weight:600;}
+.dd-value{color:var(--text);font-weight:500;}
+.dd-value-link{color:var(--accent);text-decoration:none;font-weight:600;border-bottom:1px solid var(--accent-bd);}
+.dd-value-link:hover{opacity:.85;}
+.dd-description{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:12px;color:var(--text2);line-height:1.5;max-height:120px;overflow-y:auto;white-space:pre-wrap;}
+.dd-contact-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.dd-contact-name{font-weight:600;color:var(--text);}
+.dd-contact-title{font-size:11px;color:var(--text3);margin-top:2px;}
+.dd-contact-actions{display:flex;gap:6px;}
+.dd-contact-actions a{font-size:10px;padding:3px 6px;border-radius:4px;background:var(--surface2);color:var(--text3);text-decoration:none;border:1px solid var(--border);transition:all .12s;}
+.dd-contact-actions a:hover{color:var(--accent);border-color:var(--accent-bd);background:var(--accent-bg);}
+.dd-task-item{padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px;font-size:11px;margin-bottom:6px;}
+.dd-task-subj{font-weight:600;color:var(--text);}
+.dd-task-status{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* Activity Feed */
+.activity-item{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .12s;}
+.activity-item:hover{background:var(--surface2);}
+.activity-icon{width:32px;height:32px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--surface2);border:1px solid var(--border);}
+.activity-item.task_completed .activity-icon{background:var(--accent-bg);border-color:var(--accent-bd);color:var(--accent);}
+.activity-item.deal_stage_moved .activity-icon{background:var(--blue-bg);border-color:rgba(96,165,250,.3);color:var(--blue);}
+.activity-content{flex:1;min-width:0;}
+.activity-text{font-size:13px;font-weight:500;color:var(--text);line-height:1.35;margin-bottom:4px;}
+.activity-time{font-size:11px;color:var(--text3);font-weight:500;}
+.activity-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--text3);text-align:center;}
+.activity-empty-icon{font-size:36px;margin-bottom:8px;}
+.activity-empty-text{font-size:12px;}
+
+/* Quick Create Task Modal */
+.form-label{display:block;margin-top:12px;font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}
+.form-input,.form-select{display:block;width:100%;padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;transition:border .12s;}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-bg);}
+.form-select{cursor:pointer;}
+
+/* Event Modal Extensions */
+.ev-section{margin-top:14px;padding:12px;background:var(--surface2);border-radius:7px;border:1px solid var(--border);}
+.ev-section-label{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-weight:600;}
+.ev-task-options{display:none;flex-direction:column;gap:10px;padding:10px;background:var(--surface);border-radius:6px;}
+
 </style>
 </head>
 <body>
@@ -707,6 +766,70 @@ button{font-family:inherit;cursor:pointer;}
   </div>
 </div>
 
+<!-- DEAL DETAILS MODAL (NEW - TIER 1) -->
+<div class="modal-overlay" id="deal-details-modal">
+  <div class="modal" style="width:500px; max-height:90vh; overflow-y:auto;">
+    <div class="modal-close" onclick="closeModal('deal-details-modal')">✕</div>
+    <div class="modal-title" id="dd-title">—</div>
+    <div class="modal-sub" id="dd-stage">—</div>
+
+    <div class="dd-section">
+      <div class="dd-row"><div class="dd-label">Amount</div><div class="dd-value" id="dd-amount">—</div></div>
+      <div class="dd-row"><div class="dd-label">Close Date</div><div class="dd-value" id="dd-closedate">—</div></div>
+      <div class="dd-row"><div class="dd-label">Owner</div><div class="dd-value" id="dd-owner">—</div></div>
+    </div>
+
+    <div class="dd-section"><div class="dd-section-title">Company</div>
+      <div class="dd-row"><div class="dd-label">Name</div><a class="dd-value-link" id="dd-company-name" href="#" target="_blank">—</a></div>
+    </div>
+
+    <div class="dd-section"><div class="dd-section-title">Contacts</div><div id="dd-contacts-list">—</div></div>
+
+    <div class="dd-section"><div class="dd-section-title">Notes</div><div class="dd-description" id="dd-description">—</div></div>
+
+    <div class="dd-section"><div class="dd-section-title">Tasks</div><div id="dd-tasks-list">—</div></div>
+
+    <div class="modal-actions">
+      <a class="btn-link" id="dd-hs-link" href="#" target="_blank">Open in HubSpot ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK CREATE TASK MODAL (NEW - TIER 1) -->
+<div class="modal-overlay" id="task-create-modal">
+  <div class="modal">
+    <div class="modal-title">Create Task</div>
+    <p class="modal-sub">Add a quick task to HubSpot</p>
+
+    <label class="form-label">Task Subject</label>
+    <input class="form-input" id="create-task-subject" type="text" placeholder="e.g., Follow up on proposal">
+
+    <label class="form-label">Due Date</label>
+    <input class="form-input" id="create-task-duedate" type="date">
+
+    <label class="form-label">Priority</label>
+    <select class="form-select" id="create-task-priority">
+      <option value="NONE">None</option>
+      <option value="LOW">Low</option>
+      <option value="MEDIUM">Medium</option>
+      <option value="HIGH">High</option>
+    </select>
+
+    <label class="form-label">Associated Deal (Optional)</label>
+    <select class="form-select" id="create-task-deal">
+      <option value="">— No deal —</option>
+    </select>
+
+    <label class="form-label">Notes</label>
+    <textarea class="form-input" id="create-task-notes" placeholder="Optional notes..." style="min-height:60px;resize:vertical;"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('task-create-modal')">Cancel</button>
+      <button class="btn-primary" onclick="createTaskNow()">Create Task</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <span class="toast-icon" id="toast-icon">✓</span>
@@ -756,10 +879,12 @@ const OWNER_MAP   = {'2106383852':{name:'Blase',key:'blase',dot:'dot-tb'},'50300
 // STATE
 // ════════════════════════════════════════════════════
 let TASKS = [], DEALS = [], EVENTS = [];
+let ACTIVITY_FEED = [], TASK_SUMMARY = null;
 let dismissedTasks = new Set();
 let calFilter = 'all', taskFilter = 'overdue', pipeFilter = 'all', insFilter = 'all';
 let currentTaskId = null, currentTaskName = null;
 let currentDealId = null, currentDealName = null;
+let currentDealDetailsId = null, currentEvent = null;
 
 document.getElementById('hdr-date').textContent =
   new Date().toLocaleDateString('en-US', {weekday:'long',month:'long',day:'numeric',year:'numeric'});
@@ -828,6 +953,147 @@ async function apiFetch(path, opts={}) {
 }
 
 // ════════════════════════════════════════════════════
+// TIER 1: DEAL DETAILS PANEL
+// ════════════════════════════════════════════════════
+async function loadAndShowDealDetails(dealId) {
+  toast('Loading deal details...', 'loading');
+  try {
+    const details = await apiFetch(`/api/deal-details?dealId=${dealId}`);
+
+    document.getElementById('dd-title').textContent = details.name;
+    document.getElementById('dd-stage').textContent = `${details.stageName} · ${fmt$(details.amount)}`;
+    document.getElementById('dd-amount').textContent = fmt$(details.amount);
+    document.getElementById('dd-closedate').textContent = details.closeDate ? new Date(details.closeDate).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) : '—';
+    document.getElementById('dd-owner').textContent = details.owner?.name || '—';
+
+    document.getElementById('dd-company-name').textContent = details.companyName || '—';
+    document.getElementById('dd-company-name').href = `https://app.hubspot.com/contacts/43556656/company/${details.companyId}`;
+
+    const contactsList = document.getElementById('dd-contacts-list');
+    if(details.contacts?.length) {
+      contactsList.innerHTML = details.contacts.map(c => `
+        <div class="dd-contact-item">
+          <div class="dd-contact-info">
+            <div class="dd-contact-name">${c.name}</div>
+            <div class="dd-contact-title">${c.title || 'N/A'}</div>
+          </div>
+          <div class="dd-contact-actions">
+            ${c.email ? `<a href="mailto:${c.email}">Email</a>` : ''}
+            ${c.phone ? `<a href="tel:${c.phone}">Call</a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      contactsList.innerHTML = '<div style="color:var(--text3);font-size:12px;">No contacts linked</div>';
+    }
+
+    document.getElementById('dd-description').textContent = details.description || '(No notes)';
+
+    const tasksList = document.getElementById('dd-tasks-list');
+    if(details.associatedTasks?.length) {
+      tasksList.innerHTML = details.associatedTasks.map(t => `<div class="dd-task-item"><div class="dd-task-subj">${t.subject}</div><div class="dd-task-status">${t.status}</div></div>`).join('');
+    } else {
+      tasksList.innerHTML = '<div style="color:var(--text3);font-size:12px;">No tasks</div>';
+    }
+
+    document.getElementById('dd-hs-link').href = `https://app.hubspot.com/contacts/43556656/record/0-3/${dealId}`;
+
+    openModal('deal-details-modal');
+    toast('Deal details loaded ✓');
+  } catch(e) {
+    toast('Failed to load deal details: ' + e.message, 'error');
+  }
+}
+
+// ════════════════════════════════════════════════════
+// TIER 1: TASK SUMMARY & QUICK CREATE
+// ════════════════════════════════════════════════════
+async function loadTaskSummary() {
+  try {
+    TASK_SUMMARY = await apiFetch('/api/task-summary');
+    // Task summary will be displayed in a banner
+  } catch(e) {
+    console.warn('Task summary failed:', e.message);
+  }
+}
+
+async function createTaskNow() {
+  const subject = document.getElementById('create-task-subject').value.trim();
+  const dueDate = document.getElementById('create-task-duedate').value;
+  const priority = document.getElementById('create-task-priority').value;
+  const dealId = document.getElementById('create-task-deal').value;
+  const notes = document.getElementById('create-task-notes').value.trim();
+
+  if(!subject) { toast('Subject is required', 'error'); return; }
+
+  const btn = document.querySelector('#task-create-modal .btn-primary');
+  btn.disabled = true; btn.textContent = 'Creating...';
+
+  try {
+    const result = await apiFetch('/api/create-task', {
+      method: 'POST',
+      body: JSON.stringify({ subject, dueDate, priority, description: notes, associatedDealId: dealId||null })
+    });
+
+    TASKS.push({id:result.id, subj:subject, due:dueDate, pri:priority, status:'NOT_STARTED', owner:null});
+    closeModal('task-create-modal');
+    renderTasks();
+    loadTaskSummary();
+    toast(`Task "${subject}" created ✓`);
+
+    document.getElementById('create-task-subject').value = '';
+    document.getElementById('create-task-duedate').value = '';
+    document.getElementById('create-task-priority').value = 'NONE';
+    document.getElementById('create-task-deal').value = '';
+    document.getElementById('create-task-notes').value = '';
+  } catch(e) {
+    toast('Failed to create task: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Task';
+  }
+}
+
+// ════════════════════════════════════════════════════
+// TIER 1: ACTIVITY FEED
+// ════════════════════════════════════════════════════
+async function loadActivityFeed() {
+  try {
+    ACTIVITY_FEED = await apiFetch('/api/activity-feed?limit=30');
+  } catch(e) {
+    console.warn('Activity feed failed:', e.message);
+    ACTIVITY_FEED = [];
+  }
+}
+
+function renderActivityFeed() {
+  const el = document.getElementById('activity-feed-list');
+  if(!el) return; // Activity feed panel doesn't exist yet
+
+  if(!ACTIVITY_FEED.length) {
+    el.innerHTML = '<div class="activity-empty"><div class="activity-empty-icon">📭</div><div class="activity-empty-text">No activity yet</div></div>';
+    return;
+  }
+
+  el.innerHTML = ACTIVITY_FEED.map(a => {
+    const time = new Date(a.completedAt);
+    const now = new Date();
+    const diffMins = Math.floor((now-time)/60000);
+    const diffHours = Math.floor((now-time)/3600000);
+    const diffDays = Math.floor((now-time)/86400000);
+    let timeStr;
+    if(diffMins<1) timeStr = 'Just now';
+    else if(diffMins<60) timeStr = `${diffMins}m ago`;
+    else if(diffHours<24) timeStr = `${diffHours}h ago`;
+    else if(diffDays<7) timeStr = `${diffDays}d ago`;
+    else timeStr = time.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+
+    const icon = a.action==='task_completed' ? '✓' : '→';
+    const actionCls = a.action;
+    return `<div class="activity-item ${actionCls}"><div class="activity-icon">${icon}</div><div class="activity-content"><div class="activity-text">${a.displayText}</div><div class="activity-time">${timeStr}</div></div></div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════════
 // LOAD ALL DATA
 // ════════════════════════════════════════════════════
 async function loadAll() {
@@ -835,15 +1101,19 @@ async function loadAll() {
 
   try {
     setMsg('Loading tasks from HubSpot…');
-    const [tasks, deals, events] = await Promise.allSettled([
+    const [tasks, deals, events, activity, summary] = await Promise.allSettled([
       apiFetch('/api/tasks'),
       apiFetch('/api/deals'),
       apiFetch('/api/calendar'),
+      apiFetch('/api/activity-feed?limit=20'),
+      apiFetch('/api/task-summary'),
     ]);
 
     if(tasks.status === 'fulfilled')  TASKS  = tasks.value  || [];
     if(deals.status === 'fulfilled')  DEALS  = deals.value  || [];
     if(events.status === 'fulfilled') EVENTS = events.value || [];
+    if(activity.status === 'fulfilled') ACTIVITY_FEED = activity.value || [];
+    if(summary.status === 'fulfilled') TASK_SUMMARY = summary.value || null;
 
     TASKS = TASKS.map(t => ({...t, ownerKey: ownerInfo(t.owner).key}));
     DEALS = DEALS.map(d => ({...d, ownerKey: ownerInfo(d.owner).key}));
@@ -866,6 +1136,7 @@ function renderAll() {
   renderTasks();
   renderPipeline();
   renderInsights();
+  renderActivityFeed();
 }
 
 // ════════════════════════════════════════════════════
@@ -1089,12 +1360,12 @@ function renderPipeline() {
   }).join('');
 }
 
-window.onDealClick = function(id, name, stage) {
+window.onDealClick = async function(id, name, stage) {
   currentDealId   = id;
   currentDealName = name;
-  document.getElementById('deal-modal-text').textContent = name;
-  document.getElementById('deal-stage-sel').value = stage;
-  openModal('deal-modal');
+  currentDealDetailsId = id;
+  // Load and show full deal details instead of just stage selector
+  await loadAndShowDealDetails(id);
 };
 
 window.moveDealStageNow = async function() {
