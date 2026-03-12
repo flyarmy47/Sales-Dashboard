@@ -47,17 +47,21 @@ async function gcalFetch(path, token, options = {}) {
 // GET today's events for a calendar
 async function getTodayEvents(calendarId) {
   const token = await getAccessToken();
-  const tz    = 'America/New_York';
+  const tz = process.env.CALENDAR_TIMEZONE || 'America/Los_Angeles';
 
-  // Today's date in New York timezone (YYYY-MM-DD)
-  const today = new Date().toLocaleDateString('sv-SE', { timeZone: tz });
+  const now = new Date();
 
-  // Compute NY UTC offset dynamically (handles EST/EDT automatically)
-  const nyNow  = new Date(new Date().toLocaleString('en-US', { timeZone: tz }));
-  const offsetMs = Date.now() - nyNow.getTime();
-  const offsetH  = Math.round(offsetMs / 3600000);
-  const sign     = offsetH <= 0 ? '-' : '+';
-  const offset   = `${sign}${String(Math.abs(offsetH)).padStart(2, '0')}:00`;
+  // Today's date in the target timezone (YYYY-MM-DD)
+  const today = now.toLocaleDateString('sv-SE', { timeZone: tz });
+
+  // UTC offset for this timezone using Intl (e.g. "GMT-07:00" → "-07:00")
+  // Uses longOffset which is reliable in Node 18+ and handles DST automatically
+  const tzParts = new Intl.DateTimeFormat('en', {
+    timeZone: tz,
+    timeZoneName: 'longOffset',
+  }).formatToParts(now);
+  const offset = (tzParts.find(p => p.type === 'timeZoneName')?.value || 'GMT+00:00')
+    .replace('GMT', '') || '+00:00';
 
   const params = new URLSearchParams({
     timeMin:      `${today}T00:00:00${offset}`,
