@@ -8,8 +8,7 @@
 // and THIS function calls HubSpot with the private token.
 
 const { completeTask } = require('./_hubspot');
-const { createClient }  = require('@supabase/supabase-js');
-const { ok, err, preflight, isAuthorized } = require('./_helpers');
+const { ok, err, preflight, isAuthorized, logActivity } = require('./_helpers');
 
 exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return preflight();
@@ -31,22 +30,8 @@ exports.handler = async (event) => {
     // 1. Mark complete in HubSpot
     const result = await completeTask(taskId);
 
-    // 2. Log to Supabase activity log (best-effort — don't fail if Supabase is down)
-    try {
-      const supabase = createClient(
-        process.env.SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      await supabase.from('activity_log').insert({
-        action:      'task_completed',
-        object_type: 'task',
-        object_id:   String(taskId),
-        object_name: taskName,
-        completed_at: new Date().toISOString(),
-      });
-    } catch (logErr) {
-      console.warn('Supabase log failed (non-fatal):', logErr.message);
-    }
+    // 2. Log to Supabase activity log (best-effort — non-fatal if fails)
+    await logActivity('task_completed', 'task', taskId, taskName);
 
     return ok({
       taskId:  String(taskId),

@@ -5,8 +5,7 @@
 // Body for POST: { dealId: "12345", stageId: "986576445" }
 
 const { getDeals, moveDealStage } = require('./_hubspot');
-const { createClient }            = require('@supabase/supabase-js');
-const { ok, err, preflight, isAuthorized } = require('./_helpers');
+const { ok, err, preflight, isAuthorized, logActivity } = require('./_helpers');
 
 // Stage ID → human name map (for activity log)
 const STAGE_NAMES = {
@@ -61,23 +60,8 @@ exports.handler = async (event) => {
     try {
       const result = await moveDealStage(dealId, stageId);
 
-      // Log to Supabase (best-effort)
-      try {
-        const supabase = createClient(
-          process.env.SUPABASE_URL,
-          process.env.SUPABASE_SERVICE_ROLE_KEY
-        );
-        await supabase.from('activity_log').insert({
-          action:      'deal_stage_moved',
-          object_type: 'deal',
-          object_id:   String(dealId),
-          object_name: dealName,
-          new_value:   STAGE_NAMES[stageId] || stageId,
-          completed_at: new Date().toISOString(),
-        });
-      } catch (logErr) {
-        console.warn('Supabase log failed (non-fatal):', logErr.message);
-      }
+      // Log to Supabase (best-effort, non-fatal if fails)
+      await logActivity('deal_stage_moved', 'deal', dealId, dealName, STAGE_NAMES[stageId] || stageId);
 
       return ok({
         dealId:   String(dealId),
