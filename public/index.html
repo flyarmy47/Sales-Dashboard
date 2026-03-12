@@ -1353,6 +1353,13 @@ async function loadAll() {
     if(activity.status=== 'fulfilled') ACTIVITY_FEED = activity.value|| [];
     if(summary.status === 'fulfilled') TASK_SUMMARY  = summary.value || null;
 
+    // Surface calendar error in the UI so it's visible
+    if(events.status === 'rejected') {
+      console.error('[Calendar] API failed:', events.reason?.message || events.reason);
+      const el = document.getElementById('cal-list');
+      if(el) el.innerHTML = `<div class="empty-state" style="color:var(--red)">⚠ Calendar error: ${events.reason?.message || 'Unknown error'}</div>`;
+    }
+
     TASKS = TASKS.map(t => ({...t, ownerKey: ownerInfo(t.owner).key}));
     DEALS = DEALS.map(d => ({...d, ownerKey: ownerInfo(d.owner).key}));
 
