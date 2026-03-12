@@ -1456,16 +1456,17 @@ window.openEditEvent = function(ev) {
   document.getElementById('ev-title').value = ev.title || '';
 
   // Date — extract YYYY-MM-DD from startISO (or fall back to today)
+  const CAL_TZ = 'America/Los_Angeles';
   const dateStr = ev.startISO
-    ? new Date(ev.startISO).toLocaleDateString('sv-SE', { timeZone: 'America/New_York' })
+    ? new Date(ev.startISO).toLocaleDateString('sv-SE', { timeZone: CAL_TZ })
     : TODAY_STR;
   document.getElementById('ev-date').value  = dateStr;
 
-  // Times — HH:MM in New York time
+  // Times — HH:MM in Pacific time
   const toNYTime = iso => {
     if (!iso) return '';
     return new Date(iso).toLocaleTimeString('en-US', {
-      hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/New_York',
+      hour: '2-digit', minute: '2-digit', hour12: false, timeZone: CAL_TZ,
     });
   };
   document.getElementById('ev-start').value = toNYTime(ev.startISO);
@@ -1507,9 +1508,8 @@ window.saveEventChanges = async function() {
     return;
   }
 
-  // Build ISO strings in New York timezone offset
-  // We compute the offset from the original event's startISO if available
-  const tz = 'America/New_York';
+  // Build ISO strings in Pacific timezone offset
+  const tz = 'America/Los_Angeles';
   const toISO = (date, time) => {
     // Create a local Date in NY time, then convert to ISO
     const dtStr = `${date}T${time}:00`;

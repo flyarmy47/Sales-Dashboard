@@ -17,9 +17,10 @@ function classifyEvent(summary = '') {
 function fmtTime(dt) {
   if (!dt) return '';
   const d = new Date(dt);
+  const tz = process.env.CALENDAR_TIMEZONE || 'America/Los_Angeles';
   return d.toLocaleTimeString('en-US', {
     hour: 'numeric', minute: '2-digit',
-    hour12: true, timeZone: 'America/New_York',
+    hour12: true, timeZone: tz,
   });
 }
 
