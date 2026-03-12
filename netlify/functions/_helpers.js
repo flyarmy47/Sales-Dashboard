@@ -8,6 +8,7 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Headers': 'Content-Type, X-API-Secret',
   'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
   'Content-Type': 'application/json',
+  'Cache-Control': 'no-store',
 };
 
 function ok(data, status = 200) {

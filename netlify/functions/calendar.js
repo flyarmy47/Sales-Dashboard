@@ -43,8 +43,12 @@ exports.handler = async (event) => {
     process.env.THOMAS_CALENDAR_ID ||
     'primary';
 
+  console.log(`[calendar] called — calendarId: ${calendarId}, time: ${new Date().toISOString()}`);
+
   try {
     const events = await getTodayEvents(calendarId);
+
+    console.log(`[calendar] getTodayEvents returned ${events.length} events`);
 
     const normalized = events
       .filter(e => e.status !== 'cancelled')
@@ -62,8 +66,10 @@ exports.handler = async (event) => {
         allDay:   !e.start?.dateTime,
       }));
 
+    console.log(`[calendar] returning ${normalized.length} normalized events`);
     return ok(normalized);
   } catch (e) {
+    console.error(`[calendar] error: ${e.message}`);
     // If Google Calendar isn't configured yet, return empty array gracefully
     if (e.message.includes('not configured')) {
       return ok([], 200);
