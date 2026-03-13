@@ -9,8 +9,13 @@ exports.handler = async (event) => {
   const email = event.queryStringParameters?.email;
   if (!email) return err('Missing email parameter', 400);
 
-  const clientId    = process.env.GOOGLE_OAUTH_CLIENT_ID;
-  const redirectUri = `${process.env.APP_URL}/api/google-auth-callback`;
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+
+  // Derive redirect URI from the actual request host so it works on any domain
+  // (launchhouse-sales-dashboard.netlify.app or sales.launchhouse.golf)
+  const host = event.headers.host || event.headers['x-forwarded-host'];
+  const baseUrl = `https://${host}`;
+  const redirectUri = `${baseUrl}/api/google-auth-callback`;
 
   const params = new URLSearchParams({
     client_id:     clientId,

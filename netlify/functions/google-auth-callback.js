@@ -8,7 +8,9 @@ exports.handler = async (event) => {
   const email = event.queryStringParameters?.state;  // We passed email as state
   const error = event.queryStringParameters?.error;
 
-  const appUrl = process.env.APP_URL || 'https://sales.launchhouse.golf';
+  // Use the actual host so redirect_uri matches what google-auth-start sent
+  const host   = event.headers.host || event.headers['x-forwarded-host'];
+  const appUrl = `https://${host}`;
 
   if (error) {
     return { statusCode: 302, headers: { Location: `${appUrl}/?calendarError=${error}` }, body: '' };
