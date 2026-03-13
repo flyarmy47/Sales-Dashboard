@@ -565,6 +565,70 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .dd-task-item{padding:9px 11px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-size:12px;margin-bottom:7px;}
 .dd-task-subj{font-weight:600;color:var(--text);}
 .dd-task-status{font-size:10px;color:var(--text3);margin-top:2px;}
+
+/* ── MOBILE TAB BAR ── */
+.mob-tabs{
+  display:none;flex-shrink:0;
+  background:var(--surface);border-top:1px solid var(--border);height:56px;
+}
+.mob-tab{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+  color:var(--text3);background:none;border:none;cursor:pointer;
+  padding:6px 0;transition:color .15s;font-family:inherit;
+}
+.mob-tab .mob-icon{font-size:20px;line-height:1;}
+.mob-tab.active{color:var(--accent);}
+
+/* ── TABLET (769–1100px) ── */
+@media(min-width:769px)and(max-width:1100px){
+  .grid{grid-template-columns:250px 1fr 275px;}
+  .hdr-center{display:none;}
+  .focus-right{display:none;}
+  .fstat{padding:0 14px;}
+  .hdr-right .icon-btn[href]{display:none;}
+}
+
+/* ── MOBILE (≤768px) ── */
+@media(max-width:768px){
+  /* Header compact */
+  .hdr{padding:0 12px;}
+  .hdr-center,.hdr-section,.hdr-div,.theme-label{display:none;}
+  .hdr-sub{display:none;}
+  .hdr-right a.icon-btn{display:none;}
+  .icon-btn{padding:6px 10px;font-size:11px;}
+  .owner-pill{font-size:11px;padding:4px 10px 4px 4px;}
+
+  /* Focus bar: horizontal scroll, no wrap */
+  .focus-bar{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+  .focus-bar::-webkit-scrollbar{display:none;}
+  .focus-stats{flex-shrink:0;flex-wrap:nowrap;}
+  .focus-tag{flex-shrink:0;padding:0 14px;}
+  .fstat{flex-shrink:0;padding:0 14px;}
+  .focus-right{display:none;}
+
+  /* Single-panel grid — show only mob-active col */
+  .grid{grid-template-columns:1fr;}
+  .col{display:none;border-right:none;}
+  .col.mob-active{display:flex;}
+
+  /* Mobile tab bar */
+  .mob-tabs{display:flex;}
+
+  /* Toast above tab bar */
+  .toast{bottom:66px;right:12px;left:12px;max-width:none;width:auto;}
+
+  /* Modals: full-width friendly */
+  .modal{padding:22px 16px;}
+  .modal.wide{width:calc(100vw - 32px);max-height:85vh;}
+
+  /* Pipeline kanban: touch scroll */
+  .pipe-scroll{-webkit-overflow-scrolling:touch;}
+
+  /* Filter chips: touch-friendly size */
+  .filter-chip{padding:6px 12px;font-size:11px;}
+  .filter-search{font-size:16px;} /* prevents iOS zoom on focus */
+}
 </style>
 </head>
 <body>
@@ -649,7 +713,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 <div class="grid">
 
   <!-- LEFT: SCHEDULE -->
-  <div class="col">
+  <div class="col mob-active" id="col-schedule">
     <div class="panel-head">
       <div class="panel-title"><div class="panel-dot"></div> Today's Schedule</div>
       <a class="panel-action" href="https://calendar.google.com/calendar/r/eventedit" target="_blank">+ Event</a>
@@ -668,7 +732,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   </div>
 
   <!-- MIDDLE: TASKS + PIPELINE -->
-  <div class="col">
+  <div class="col" id="col-tasks">
     <div class="tasks-wrap">
       <div class="panel-head">
         <div class="panel-title">
@@ -729,7 +793,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   </div>
 
   <!-- RIGHT: ACTIVITY + INSIGHTS -->
-  <div class="col">
+  <div class="col" id="col-insights">
     <!-- Activity Feed -->
     <div class="activity-panel">
       <div class="panel-head">
@@ -761,6 +825,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   </div>
 
 </div>
+
+<!-- MOBILE TAB BAR -->
+<nav class="mob-tabs" id="mob-tabs" role="tablist" aria-label="Dashboard sections">
+  <button class="mob-tab active" role="tab" onclick="switchMobTab('schedule',this)">
+    <span class="mob-icon">📅</span>Schedule
+  </button>
+  <button class="mob-tab" role="tab" onclick="switchMobTab('tasks',this)">
+    <span class="mob-icon">✓</span>Tasks
+  </button>
+  <button class="mob-tab" role="tab" onclick="switchMobTab('insights',this)">
+    <span class="mob-icon">💡</span>Insights
+  </button>
+</nav>
 </div>
 
 <!-- TASK COMPLETE MODAL -->
@@ -1974,6 +2051,23 @@ window.syncAll = async function() {
 setInterval(() => {
   loadAll().catch(e => console.warn('Auto-sync failed:', e.message));
 }, 5 * 60 * 1000);
+
+// ════════════════════════════════════════════════════
+// MOBILE TAB NAVIGATION
+// ════════════════════════════════════════════════════
+window.switchMobTab = function(panel, btn) {
+  const colMap = { schedule:'col-schedule', tasks:'col-tasks', insights:'col-insights' };
+  // Update columns
+  Object.values(colMap).forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('mob-active');
+  });
+  const target = document.getElementById(colMap[panel]);
+  if(target) target.classList.add('mob-active');
+  // Update tab buttons
+  document.querySelectorAll('.mob-tab').forEach(t => t.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+};
 
 // ════════════════════════════════════════════════════
 // BOOT
