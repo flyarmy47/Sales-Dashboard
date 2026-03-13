@@ -38,15 +38,20 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return preflight();
   if (!isAuthorized(event))           return err('Unauthorized', 401);
 
+  // User's email — frontend sends this from their Supabase session
+  const userEmail = event.queryStringParameters?.userEmail || null;
+
+  // Calendar ID defaults to the user's email (Google Calendar primary = their email)
   const calendarId =
     event.queryStringParameters?.calendarId ||
+    userEmail ||
     process.env.THOMAS_CALENDAR_ID ||
     'primary';
 
-  console.log(`[calendar] called — calendarId: ${calendarId}, time: ${new Date().toISOString()}`);
+  console.log(`[calendar] called — calendarId: ${calendarId}, userEmail: ${userEmail}`);
 
   try {
-    const events = await getTodayEvents(calendarId);
+    const events = await getTodayEvents(calendarId, userEmail);
 
     console.log(`[calendar] getTodayEvents returned ${events.length} events`);
 
@@ -70,9 +75,9 @@ exports.handler = async (event) => {
     return ok(normalized);
   } catch (e) {
     console.error(`[calendar] error: ${e.message}`);
-    // If Google Calendar isn't configured yet, return empty array gracefully
-    if (e.message.includes('not configured')) {
-      return ok([], 200);
+    // No token available — surface error so frontend can show "Link Calendar" button
+    if (e.message.includes('not configured') || e.message.includes('Link your calendar')) {
+      return err(e.message, 412);
     }
     return err(e.message);
   }

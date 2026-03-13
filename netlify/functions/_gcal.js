@@ -3,12 +3,49 @@
 
 const GCAL_BASE = 'https://www.googleapis.com/calendar/v3';
 
-async function getAccessToken() {
+// Get access token — tries per-user token first, falls back to env var
+async function getAccessToken(userEmail = null) {
+  let refreshToken = null;
+
+  // Try per-user token from Supabase
+  if (userEmail) {
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const res = await fetch(
+          `${supabaseUrl}/rest/v1/user_tokens?user_email=eq.${encodeURIComponent(userEmail)}&select=refresh_token&limit=1`,
+          {
+            headers: {
+              'Authorization': `Bearer ${supabaseKey}`,
+              'Content-Type':  'application/json',
+            },
+          }
+        );
+        const rows = await res.json();
+        if (rows && rows.length > 0) {
+          refreshToken = rows[0].refresh_token;
+        }
+      } catch (e) {
+        console.warn('Per-user token lookup failed:', e.message);
+      }
+    }
+  }
+
+  // Fall back to global env var
+  if (!refreshToken) {
+    refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
+  }
+
+  if (!refreshToken) {
+    throw new Error('No Google refresh token available. Link your calendar first.');
+  }
+
   const clientId     = process.env.GOOGLE_OAUTH_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN;
 
-  if (!clientId || !clientSecret || !refreshToken) {
+  if (!clientId || !clientSecret) {
     throw new Error('Google OAuth credentials not configured.');
   }
 
@@ -45,8 +82,8 @@ async function gcalFetch(path, token, options = {}) {
 }
 
 // GET today's events for a calendar
-async function getTodayEvents(calendarId) {
-  const token = await getAccessToken();
+async function getTodayEvents(calendarId, userEmail = null) {
+  const token = await getAccessToken(userEmail);
   const tz = process.env.CALENDAR_TIMEZONE || 'America/Los_Angeles';
 
   const now = new Date();
@@ -80,8 +117,8 @@ async function getTodayEvents(calendarId) {
 
 // PATCH a Google Calendar event (reschedule / rename)
 // patch: { summary, start: { dateTime, timeZone }, end: { dateTime, timeZone } }
-async function updateCalendarEvent(eventId, calendarId, patch) {
-  const token = await getAccessToken();
+async function updateCalendarEvent(eventId, calendarId, patch, userEmail = null) {
+  const token = await getAccessToken(userEmail);
   const data = await gcalFetch(
     `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
     token,

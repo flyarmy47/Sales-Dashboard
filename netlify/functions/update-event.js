@@ -22,7 +22,7 @@ exports.handler = async (event) => {
     return err('Invalid JSON body', 400);
   }
 
-  const { eventId, calendarId, title, startISO, endISO, timeZone } = body;
+  const { eventId, calendarId, title, startISO, endISO, timeZone, userEmail } = body;
 
   if (!eventId)  return err('eventId is required', 400);
   if (!startISO) return err('startISO is required', 400);
@@ -39,7 +39,7 @@ exports.handler = async (event) => {
   if (title) patch.summary = title;
 
   try {
-    const updated = await updateCalendarEvent(eventId, resolvedCalendarId, patch);
+    const updated = await updateCalendarEvent(eventId, resolvedCalendarId, patch, userEmail || null);
 
     // Best-effort activity log
     await logActivity(

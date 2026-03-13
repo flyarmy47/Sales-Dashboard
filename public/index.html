@@ -939,6 +939,7 @@ const SUPABASE_URL  = 'https://bruqilvhrqctgcjpmfft.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJydXFpbHZocnFjdGdjanBtZmZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwOTQxNTUsImV4cCI6MjA4ODY3MDE1NX0.qLtqt3WrBhe6RMFvDR_0wugLkF7LoSPXQ0Z2yoC02Rs';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+let USER_EMAIL = '';
 {
   const { data: { session } } = await sb.auth.getSession();
   if (!session) { window.location.href = '/login.html'; throw new Error('Not authenticated'); }
@@ -948,12 +949,31 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     window.location.href = '/login.html';
     throw new Error('Unauthorized domain');
   }
+  USER_EMAIL = email;
 }
 
 window.logOut = async function() {
   await sb.auth.signOut();
   window.location.href = '/login.html';
 };
+
+window.linkCalendar = function() {
+  window.location.href = `/api/google-auth-start?email=${encodeURIComponent(USER_EMAIL)}`;
+};
+
+// Handle post-OAuth redirect params
+{
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('calendarLinked') === 'true') {
+    // toast not defined yet — defer to after loadAll
+    window.__calendarLinkedToast = true;
+    window.history.replaceState({}, '', '/');
+  }
+  if (urlParams.get('calendarError')) {
+    window.__calendarErrorToast = urlParams.get('calendarError');
+    window.history.replaceState({}, '', '/');
+  }
+}
 
 // ════════════════════════════════════════════════════
 // CONFIG
@@ -1343,7 +1363,7 @@ async function loadAll() {
     const [tasks, deals, events, activity, summary] = await Promise.allSettled([
       apiFetch('/api/tasks'),
       apiFetch('/api/deals'),
-      apiFetch('/api/calendar'),
+      apiFetch(`/api/calendar?userEmail=${encodeURIComponent(USER_EMAIL)}`),
       apiFetch('/api/activity-feed?limit=30'),
       apiFetch('/api/task-summary'),
     ]);
@@ -1381,6 +1401,10 @@ async function loadAll() {
     // Set activity feed last-updated label
     const lbl = document.getElementById('feed-last-updated');
     if(lbl) lbl.textContent = 'Updated ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+    // Show post-OAuth toasts
+    if(window.__calendarLinkedToast) { toast('Google Calendar linked successfully!', 'success'); delete window.__calendarLinkedToast; }
+    if(window.__calendarErrorToast)  { toast(`Calendar link failed: ${window.__calendarErrorToast}`, 'error'); delete window.__calendarErrorToast; }
 
   } catch(e) {
     setMsg('Error: ' + e.message);
@@ -1429,7 +1453,9 @@ function renderCal() {
 
   const el = document.getElementById('cal-list');
   if(!list.length) {
-    if(calError) {
+    if(calError && calError.includes('Link your calendar')) {
+      el.innerHTML=`<div class="empty-state"><div class="empty-icon">📅</div><p style="margin:0 0 10px">Your Google Calendar isn't linked yet.</p><button class="tiny-btn" onclick="linkCalendar()">🔗 Link Google Calendar</button></div>`;
+    } else if(calError) {
       el.innerHTML=`<div class="empty-state" style="color:var(--red)">⚠ Calendar error: ${calError}</div>`;
     } else {
       el.innerHTML='<div class="empty-state"><div class="empty-icon">📅</div>No events match this filter.</div>';
@@ -1553,6 +1579,7 @@ window.saveEventChanges = async function() {
         startISO,
         endISO,
         timeZone:   tz,
+        userEmail:  USER_EMAIL,
       }),
     });
 
