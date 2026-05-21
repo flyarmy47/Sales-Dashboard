@@ -567,6 +567,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .dd-task-subj{font-weight:600;color:var(--text);}
 .dd-task-status{font-size:10px;color:var(--text3);margin-top:2px;}
 
+/* ── LEFT PANEL TABS ── */
+.left-tab{
+  font-size:11px;font-weight:600;color:var(--text3);
+  background:none;border:1px solid transparent;padding:4px 10px;border-radius:7px;
+  cursor:pointer;transition:all .15s;font-family:inherit;letter-spacing:.2px;white-space:nowrap;
+}
+.left-tab:hover{color:var(--text2);}
+.left-tab.active{background:var(--accent-bg);color:var(--accent);border-color:var(--accent-bd);}
+
 /* ── MOBILE TAB BAR ── */
 .mob-tabs{
   display:none;flex-shrink:0;
@@ -713,23 +722,38 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 <!-- MAIN GRID -->
 <div class="grid">
 
-  <!-- LEFT: SCHEDULE -->
+  <!-- LEFT: SCHEDULE + ACTIVITY FEED -->
   <div class="col mob-active" id="col-schedule">
     <div class="panel-head">
-      <div class="panel-title"><div class="panel-dot"></div> Today's Schedule</div>
-      <a class="panel-action" href="https://calendar.google.com/calendar/r/eventedit" target="_blank">+ Event</a>
+      <div style="display:flex;gap:3px;">
+        <button class="left-tab active" id="tab-schedule" onclick="switchLeftPanel('schedule')">Today's Schedule</button>
+        <button class="left-tab" id="tab-activity" onclick="switchLeftPanel('activity')">Activity Feed</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="feed-last-updated" style="font-size:10px;color:var(--text3);font-weight:500;display:none;"></span>
+        <a class="panel-action" id="add-event-btn" href="https://calendar.google.com/calendar/r/eventedit" target="_blank">+ Event</a>
+      </div>
     </div>
-    <div class="stats-row cols-2">
-      <div class="stat-cell"><div class="stat-val" id="cal-events">—</div><div class="stat-lbl">Events</div></div>
-      <div class="stat-cell"><div class="stat-val amber" id="cal-hours">—</div><div class="stat-lbl">Booked</div></div>
+
+    <!-- Schedule pane -->
+    <div id="left-schedule-pane" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="stats-row cols-2">
+        <div class="stat-cell"><div class="stat-val" id="cal-events">—</div><div class="stat-lbl">Events</div></div>
+        <div class="stat-cell"><div class="stat-val amber" id="cal-hours">—</div><div class="stat-lbl">Booked</div></div>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-chip active" data-cal="all"     onclick="filterCal(this,'all')">All</button>
+        <button class="filter-chip"        data-cal="meeting" onclick="filterCal(this,'meeting')">Meetings</button>
+        <button class="filter-chip amber-chip" data-cal="focus" onclick="filterCal(this,'focus')">Focus</button>
+        <button class="filter-chip"        data-cal="admin"   onclick="filterCal(this,'admin')">Admin</button>
+      </div>
+      <div class="scroll" id="cal-list"></div>
     </div>
-    <div class="filter-bar">
-      <button class="filter-chip active" data-cal="all"     onclick="filterCal(this,'all')">All</button>
-      <button class="filter-chip"        data-cal="meeting" onclick="filterCal(this,'meeting')">Meetings</button>
-      <button class="filter-chip amber-chip" data-cal="focus" onclick="filterCal(this,'focus')">Focus</button>
-      <button class="filter-chip"        data-cal="admin"   onclick="filterCal(this,'admin')">Admin</button>
+
+    <!-- Activity Feed pane -->
+    <div id="left-activity-pane" style="display:none;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="scroll" id="activity-feed-list"></div>
     </div>
-    <div class="scroll" id="cal-list"></div>
   </div>
 
   <!-- MIDDLE: TASKS + PIPELINE -->
@@ -761,8 +785,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
         <button class="filter-chip blue-chip"       data-task="medium"   onclick="filterTask(this,'medium')">Priority</button>
         <div class="filter-sep"></div>
         <button class="filter-chip" data-task="blase" onclick="filterTask(this,'blase')">Blase</button>
-        <button class="filter-chip" data-task="cam"   onclick="filterTask(this,'cam')">Cam</button>
-        <button class="filter-chip" data-task="todd"  onclick="filterTask(this,'todd')">Todd</button>
         <div class="filter-sep"></div>
         <input class="filter-search" id="task-search" placeholder="Search tasks…" oninput="renderTasks()">
       </div>
@@ -783,7 +805,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
         <div class="filter-sep"></div>
         <button class="filter-chip" data-pipe="blase" onclick="filterPipe(this,'blase')">Blase</button>
         <button class="filter-chip" data-pipe="cam"   onclick="filterPipe(this,'cam')">Cam</button>
-        <button class="filter-chip" data-pipe="todd"  onclick="filterPipe(this,'todd')">Todd</button>
         <div class="filter-sep"></div>
         <input class="filter-search" id="pipe-search" placeholder="Search deals…" oninput="renderPipeline()">
       </div>
@@ -795,15 +816,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
   <!-- RIGHT: ACTIVITY + INSIGHTS -->
   <div class="col" id="col-insights">
-    <!-- Activity Feed -->
-    <div class="activity-panel">
-      <div class="panel-head">
-        <div class="panel-title"><div class="panel-dot"></div> Activity Feed</div>
-        <span style="font-size:10px;color:var(--text3);font-weight:500;" id="feed-last-updated"></span>
-      </div>
-      <div class="scroll" id="activity-feed-list"></div>
-    </div>
-
     <!-- Deal Insights -->
     <div class="insights-panel">
       <div class="panel-head">
@@ -2052,6 +2064,34 @@ window.syncAll = async function() {
 setInterval(() => {
   loadAll().catch(e => console.warn('Auto-sync failed:', e.message));
 }, 5 * 60 * 1000);
+
+// ════════════════════════════════════════════════════
+// LEFT PANEL TOGGLE (Schedule ↔ Activity Feed)
+// ════════════════════════════════════════════════════
+window.switchLeftPanel = function(panel) {
+  const schedPane = document.getElementById('left-schedule-pane');
+  const actPane   = document.getElementById('left-activity-pane');
+  const tabSched  = document.getElementById('tab-schedule');
+  const tabAct    = document.getElementById('tab-activity');
+  const addBtn    = document.getElementById('add-event-btn');
+  const feedLbl   = document.getElementById('feed-last-updated');
+
+  if(panel === 'schedule') {
+    schedPane.style.display = 'flex';
+    actPane.style.display   = 'none';
+    tabSched.classList.add('active');
+    tabAct.classList.remove('active');
+    if(addBtn)  addBtn.style.display  = '';
+    if(feedLbl) feedLbl.style.display = 'none';
+  } else {
+    schedPane.style.display = 'none';
+    actPane.style.display   = 'flex';
+    tabSched.classList.remove('active');
+    tabAct.classList.add('active');
+    if(addBtn)  addBtn.style.display  = 'none';
+    if(feedLbl) feedLbl.style.display = '';
+  }
+};
 
 // ════════════════════════════════════════════════════
 // MOBILE TAB NAVIGATION
