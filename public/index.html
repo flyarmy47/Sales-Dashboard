@@ -121,29 +121,30 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 
 /* ── FOCUS BAR ── */
 .focus-bar{
-  display:flex;align-items:stretch;height:50px;flex-shrink:0;
-  background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:stretch;height:88px;flex-shrink:0;
+  background:var(--surface);border-bottom:2px solid var(--accent-bd);
+  box-shadow:0 4px 20px rgba(0,0,0,.35);
 }
 .focus-tag{
-  display:flex;align-items:center;padding:0 22px;
+  display:flex;align-items:center;justify-content:center;padding:0 26px;
   background:var(--accent);flex-shrink:0;
 }
-.focus-tag-text{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#0D0F0B;}
+.focus-tag-text{font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#080602;}
 .focus-stats{display:flex;align-items:stretch;flex:1;}
 .fstat{
-  display:flex;align-items:center;gap:11px;
-  padding:0 22px;border-right:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 28px;border-right:1px solid var(--border);
   transition:background .15s;cursor:default;
 }
-.fstat:hover{background:var(--surface);}
+.fstat:hover{background:var(--surface2);}
 .fstat-val{
   font-family:'JetBrains Mono',monospace;
-  font-size:18px;font-weight:600;line-height:1;transition:all .2s;
+  font-size:40px;font-weight:700;line-height:1;transition:all .2s;
 }
 .fstat-val.red{color:var(--red);}
 .fstat-val.green{color:var(--accent);}
 .fstat-val.amber{color:var(--amber);}
-.fstat-lbl{font-size:10px;color:var(--text3);font-weight:500;letter-spacing:.3px;}
+.fstat-lbl{font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.8px;text-transform:uppercase;margin-top:5px;}
 .focus-right{
   margin-left:auto;display:flex;align-items:center;
   padding:0 22px;font-family:'JetBrains Mono',monospace;
@@ -567,6 +568,30 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 .dd-task-subj{font-weight:600;color:var(--text);}
 .dd-task-status{font-size:10px;color:var(--text3);margin-top:2px;}
 
+/* ── DEAL STALENESS ── */
+.stale-green{border-left:3px solid #34D399;}
+.stale-yellow{border-left:3px solid #FCD34D;}
+.stale-orange{border-left:3px solid #FB923C;}
+.stale-red{border-left:3px solid #EF4444;}
+.badge-stale-green{background:rgba(52,211,153,.10);color:#34D399;border:1px solid rgba(52,211,153,.25);}
+.badge-stale-yellow{background:rgba(252,211,77,.10);color:#D4A843;border:1px solid rgba(252,211,77,.25);}
+.badge-stale-orange{background:rgba(251,146,60,.10);color:#FB923C;border:1px solid rgba(251,146,60,.25);}
+.badge-stale-red{background:rgba(239,68,68,.10);color:#EF4444;border:1px solid rgba(239,68,68,.25);}
+
+/* ── CALENDAR DATE HEADERS (week/month view) ── */
+.cal-date-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 18px 5px;font-size:10px;font-weight:700;
+  color:var(--text3);text-transform:uppercase;letter-spacing:.8px;
+  background:var(--bg);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:1;
+}
+.cal-date-header.today{color:var(--accent);}
+.cal-today-badge{
+  font-size:9px;background:var(--accent-bg);color:var(--accent);
+  border:1px solid var(--accent-bd);border-radius:4px;padding:2px 6px;font-weight:700;
+}
+
 /* ── LEFT PANEL TABS ── */
 .left-tab{
   font-size:11px;font-weight:600;color:var(--text3);
@@ -610,11 +635,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
   .owner-pill{font-size:11px;padding:4px 10px 4px 4px;}
 
   /* Focus bar: horizontal scroll, no wrap */
-  .focus-bar{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+  .focus-bar{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;height:72px;}
   .focus-bar::-webkit-scrollbar{display:none;}
   .focus-stats{flex-shrink:0;flex-wrap:nowrap;}
-  .focus-tag{flex-shrink:0;padding:0 14px;}
-  .fstat{flex-shrink:0;padding:0 14px;}
+  .focus-tag{flex-shrink:0;padding:0 16px;}
+  .fstat{flex-shrink:0;padding:0 16px;}
+  .fstat-val{font-size:28px;}
+  .fstat-lbl{font-size:10px;}
   .focus-right{display:none;}
 
   /* Single-panel grid — show only mob-active col */
@@ -742,6 +769,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
         <div class="stat-cell"><div class="stat-val amber" id="cal-hours">—</div><div class="stat-lbl">Booked</div></div>
       </div>
       <div class="filter-bar">
+        <button class="filter-chip active" data-range="today" onclick="filterRange(this,'today')">Today</button>
+        <button class="filter-chip"        data-range="week"  onclick="filterRange(this,'week')">This Week</button>
+        <button class="filter-chip"        data-range="month" onclick="filterRange(this,'month')">This Month</button>
+        <div class="filter-sep"></div>
         <button class="filter-chip active" data-cal="all"     onclick="filterCal(this,'all')">All</button>
         <button class="filter-chip"        data-cal="meeting" onclick="filterCal(this,'meeting')">Meetings</button>
         <button class="filter-chip amber-chip" data-cal="focus" onclick="filterCal(this,'focus')">Focus</button>
@@ -832,6 +863,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
         <button class="filter-chip red-chip"   data-ins="urgent"  onclick="filterIns(this,'urgent')">Urgent</button>
         <button class="filter-chip amber-chip" data-ins="closing" onclick="filterIns(this,'closing')">Closing</button>
         <button class="filter-chip blue-chip"  data-ins="highval" onclick="filterIns(this,'highval')">$75k+</button>
+        <div class="filter-sep"></div>
+        <button class="filter-chip active"     data-ins-owner="all"   onclick="filterInsOwner(this,'all')">All</button>
+        <button class="filter-chip"            data-ins-owner="blase" onclick="filterInsOwner(this,'blase')">Blase</button>
+        <button class="filter-chip"            data-ins-owner="cam"   onclick="filterInsOwner(this,'cam')">Cam</button>
       </div>
       <div class="scroll" id="insights-list"></div>
     </div>
@@ -1090,9 +1125,9 @@ const OWNER_MAP   = {
 // ════════════════════════════════════════════════════
 let TASKS = [], DEALS = [], EVENTS = [];
 let ACTIVITY_FEED = [], TASK_SUMMARY = null;
-let calError = null;          // holds calendar fetch error message, if any
+let calError = null;
 let dismissedTasks = new Set();
-let calFilter = 'all', taskFilter = 'overdue', pipeFilter = 'all', insFilter = 'all';
+let calFilter = 'all', calRange = 'today', taskFilter = 'overdue', pipeFilter = 'all', insFilter = 'all', insOwnerFilter = 'all';
 let currentTaskId = null, currentTaskName = null;
 let currentDealId = null, currentDealName = null;
 let currentDealDetailsId = null, currentEvent = null;
@@ -1453,7 +1488,7 @@ async function loadAll() {
     const [tasks, deals, events, activity, summary] = await Promise.allSettled([
       apiFetch('/api/tasks'),
       apiFetch('/api/deals'),
-      apiFetch(`/api/calendar?userEmail=${encodeURIComponent(USER_EMAIL)}`),
+      apiFetch(`/api/calendar?userEmail=${encodeURIComponent(USER_EMAIL)}&range=${calRange}`),
       apiFetch('/api/activity-feed?limit=30'),
       apiFetch('/api/task-summary'),
     ]);
@@ -1520,6 +1555,24 @@ function updateFocusCounts() {
 // ════════════════════════════════════════════════════
 // CALENDAR
 // ════════════════════════════════════════════════════
+async function loadCalendar() {
+  try {
+    EVENTS = await apiFetch(`/api/calendar?userEmail=${encodeURIComponent(USER_EMAIL)}&range=${calRange}`) || [];
+    calError = null;
+  } catch(e) {
+    calError = e.message;
+    EVENTS = [];
+  }
+  renderCal();
+}
+
+window.filterRange = function(btn, r) {
+  calRange = r;
+  document.querySelectorAll('[data-range]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadCalendar();
+};
+
 window.filterCal = function(btn, f) {
   calFilter = f;
   document.querySelectorAll('[data-cal]').forEach(b=>b.classList.remove('active'));
@@ -1534,9 +1587,7 @@ function renderCal() {
 
   let totalMins = 0;
   EVENTS.forEach(e => {
-    if(e.startISO && e.endISO) {
-      totalMins += Math.max(0,(new Date(e.endISO)-new Date(e.startISO))/60000);
-    }
+    if(e.startISO && e.endISO) totalMins += Math.max(0,(new Date(e.endISO)-new Date(e.startISO))/60000);
   });
   document.getElementById('cal-events').textContent = EVENTS.length || '0';
   document.getElementById('cal-hours').textContent  = totalMins ? (totalMins/60).toFixed(1)+'h' : '0h';
@@ -1553,7 +1604,7 @@ function renderCal() {
     return;
   }
 
-  el.innerHTML = list.map(ev => {
+  function evCard(ev) {
     const tCls = tagCls[ev.type]||'tag-admin';
     const tLbl = tagMap[ev.type]||'BLOCK';
     const safeEv = JSON.stringify(ev).replace(/'/g,"&#39;");
@@ -1574,7 +1625,25 @@ function renderCal() {
         </div>
       </div>
     </div>`;
-  }).join('');
+  }
+
+  if(calRange === 'today') {
+    el.innerHTML = list.map(evCard).join('');
+  } else {
+    const byDate = {};
+    list.forEach(ev => {
+      const d = ev.date || ev.startISO?.split('T')[0] || '';
+      if(d) { if(!byDate[d]) byDate[d]=[]; byDate[d].push(ev); }
+    });
+    const todayStr = new Date().toISOString().split('T')[0];
+    el.innerHTML = Object.keys(byDate).sort().map(dk => {
+      const isToday = dk === todayStr;
+      const lbl = new Date(dk+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      return `<div class="cal-date-header${isToday?' today':''}">
+        <span>${lbl}</span>${isToday?'<span class="cal-today-badge">Today</span>':''}
+      </div>` + byDate[dk].map(evCard).join('');
+    }).join('');
+  }
 }
 
 window.openEditEvent = function(ev) {
@@ -1980,6 +2049,22 @@ window.filterIns = function(btn, f) {
   renderInsights();
 };
 
+window.filterInsOwner = function(btn, owner) {
+  insOwnerFilter = owner;
+  document.querySelectorAll('[data-ins-owner]').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderInsights();
+};
+
+function staleLevel(lastActivity) {
+  if(!lastActivity) return { cls:'stale-red', badge:'<span class="badge badge-stale-red">NO ACTIVITY</span>' };
+  const days = Math.floor((new Date() - new Date(lastActivity+'T12:00:00')) / 86400000);
+  if(days < 7)  return { cls:'stale-green',  badge:`<span class="badge badge-stale-green">${days}d ago</span>` };
+  if(days < 21) return { cls:'stale-yellow', badge:`<span class="badge badge-stale-yellow">${days}d ago</span>` };
+  if(days < 31) return { cls:'stale-orange', badge:`<span class="badge badge-stale-orange">${days}d ago</span>` };
+  return         { cls:'stale-red',    badge:`<span class="badge badge-stale-red">${days}d ago</span>` };
+}
+
 function renderInsights() {
   let list = [...DEALS].sort((a,b)=>{
     const ap=isPast(a.close)?2:isSoon(a.close)?1:0;
@@ -1989,6 +2074,7 @@ function renderInsights() {
   if(insFilter==='urgent')  list=list.filter(d=>isPast(d.close));
   else if(insFilter==='closing') list=list.filter(d=>isSoon(d.close)&&!isPast(d.close));
   else if(insFilter==='highval') list=list.filter(d=>d.amount>=75000);
+  if(insOwnerFilter!=='all') list=list.filter(d=>d.ownerKey===insOwnerFilter);
 
   function txt(d) {
     const s=STAGE_MAP[d.stage];
@@ -2020,20 +2106,21 @@ function renderInsights() {
   }
 
   el.innerHTML = list.slice(0,12).map(d => {
-    const own  = ownerInfo(d.owner);
-    const past = isPast(d.close);
-    const soon = isSoon(d.close);
+    const own   = ownerInfo(d.owner);
+    const past  = isPast(d.close);
+    const soon  = isSoon(d.close);
     const close = d.close ? new Date(d.close).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—';
     const urgTag = past
       ? `<span class="badge badge-red" style="margin-left:4px;">PAST CLOSE</span>`
       : soon ? `<span class="badge badge-amber" style="margin-left:4px;">CLOSING</span>` : '';
-    return `<div class="insight-item">
+    const stale = staleLevel(d.lastActivity);
+    return `<div class="insight-item ${stale.cls}">
       <div class="insight-head">
         <span class="owner-dot ${own.dot}" style="margin-top:3px;flex-shrink:0;"></span>
         <div class="insight-name">${d.name}</div>
         <div class="insight-amt">${fmt$(d.amount)}</div>
       </div>
-      <div class="insight-stage">${STAGE_MAP[d.stage]||d.stage} · ${own.name} · ${close}${urgTag}</div>
+      <div class="insight-stage">${STAGE_MAP[d.stage]||d.stage} · ${own.name} · ${close}${urgTag} ${stale.badge}</div>
       <div class="insight-body">${txt(d)}</div>
       <a class="insight-cta" href="${HS_BASE}${d.id}" target="_blank">${cta(d)}</a>
     </div>`;
